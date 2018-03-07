@@ -1,0 +1,20 @@
+<h1>Types and Moves View:</h1>
+{{#each foo}}
+{{this}}
+{{/each}}
+<table>
+    <thead> 
+        <th>Types</th>
+        <th>Moves</th>
+    </thead>
+    <tbody> 
+        {{#each view}}
+        <tr> 
+            <td>{{Types}}</td>
+            <td>{{Moves}}</td>
+        </tr> 
+        {{/each}} 
+    </tbody>
+</table>
+<br>
+<a href="/">Return to homepage</a>

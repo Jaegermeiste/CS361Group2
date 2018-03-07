@@ -1,0 +1,20 @@
+<h1>Pokemon and Locations View:</h1>
+{{#each foo}}
+{{this}}
+{{/each}}
+<table>
+    <thead> 
+        <th>Pokemon</th>
+        <th>Locations</th>
+    </thead>
+    <tbody> 
+        {{#each view}}
+        <tr> 
+            <td>{{Pokemon}}</td>
+            <td>{{Locations}}</td>
+        </tr> 
+        {{/each}} 
+    </tbody>
+</table>
+<br>
+<a href="/">Return to homepage</a>

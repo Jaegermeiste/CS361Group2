@@ -1,0 +1,17 @@
+<h1>Update Relationship:</h1>
+<form id="update-poke_type" action="/pokemon_types" method="post">
+    Pokemon: <select name="pid" id="poke-selector">
+        {{#each poke}}
+        <option value="{{id}}">{{name}}</option>
+        {{/each}}
+    </select><br>
+    Type: <select name="tid" id="type-selector">
+        {{#each type}}
+        <option value="{{id}}">{{name}}</option>
+        {{/each}}
+    </select><br>
+</form>
+<button onclick="updatePoke_Type({{poke_type.id}})">Update</button>
+<script defer>selectPoke({{poke_type.pid}});</script>
+<script defer>selectType({{poke_type.tid}});</script>
+

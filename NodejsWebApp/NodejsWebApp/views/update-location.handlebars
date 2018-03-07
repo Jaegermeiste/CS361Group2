@@ -1,0 +1,6 @@
+<h1>Update {{location.name}}:</h1>
+<form id="update-location" action="/locations" method="post">
+    Name: <input type="text" name="name" value="{{location.name}}"><br>
+</form>
+<button onclick="updateLocation({{location.id}})">Update</button>
+

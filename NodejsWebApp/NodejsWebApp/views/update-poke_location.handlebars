@@ -1,0 +1,17 @@
+<h1>Update Relationship:</h1>
+<form id="update-poke_location" action="/pokemon_location" method="post">
+    Pokemon: <select name="pid" id="poke-selector">
+        {{#each poke}}
+        <option value="{{id}}">{{name}}</option>
+        {{/each}}
+    </select><br>
+    Location: <select name="lid" id="location-selector">
+        {{#each location}}
+        <option value="{{id}}">{{name}}</option>
+        {{/each}}
+    </select><br>
+</form>
+<button onclick="updatePoke_Location({{poke_location.id}})">Update</button>
+<script defer>selectPoke({{poke_location.pid}});</script>
+<script defer>selectLocation({{poke_location.lid}});</script>
+

@@ -1,0 +1,25 @@
+<h1>Locations:</h1>
+{{#each foo}}
+{{this}}
+{{/each}}
+<table>
+    <thead> 
+        <th>Name</th>
+    </thead>
+    <tbody> 
+        {{#each locations}}
+        <tr> 
+            <td>{{name}}</td>
+            <td><button onclick="deleteLocation({{id}})">Delete</button></td>
+            <td><a href="/locations/{{id}}">Update</a></td>
+        </tr> 
+        {{/each}} 
+    </tbody> 
+    <form id="addlocation" action="/locations" method="post">
+    Name: <input type="text" name="name"><br>
+    <input type="submit" value="Submit">
+    </form>
+</table>
+<br>
+<a href="/">Return to homepage</a>
+

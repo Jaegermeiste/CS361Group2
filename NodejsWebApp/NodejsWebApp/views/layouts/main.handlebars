@@ -1,8 +1,16 @@
 <!doctype html>
 <html>
 <head>
-	<title>Pokedex Database</title>
+	<title>Anomalies</title>
     <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+        function goToNewPage() {
+            var url = document.getElementById('list').value;
+            if(url != 'none') {
+            window.location = url;
+            }
+        }
+    </script>
     {{#each jsscripts}}
     <script src="/static/{{this}}"></script>
     {{/each}}

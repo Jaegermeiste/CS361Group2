@@ -1,6 +1,6 @@
-function deletePoke_Type(id){
+function deleteAnomaly(id){
     $.ajax({
-        url: '/pokemon_types/' + id,
+        url: '/anomalies/' + id,
         type: 'DELETE',
         success: function(result){
             window.location.reload(true);

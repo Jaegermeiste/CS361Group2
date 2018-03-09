@@ -1,8 +1,9 @@
 // 'use strict';
 // var http = require('http');
 
-var port = process.env.PORT || 1337;
 
+// Boilerplate code from Hello Node, Hello Express, Hello Handlebars & Form Handling CS 290 lectures 
+var port = process.env.PORT || 64351; // changing port so can be run on engr server
 var express = require('express');
 var app = express();
 var handlebars = require('express-handlebars').create({defaultLayout:'main'});
@@ -52,7 +53,7 @@ app.get('/select-group', function(req, res){
 	//
 	//
 	var select_stmt = "SELECT groupName, groupID, firstName, lastName FROM employeeGroup ORDER BY groupName;";
-	db_response = db_simulator(select_stmt)i;
+	db_response = db_simulator(select_stmt);
 
 	res.send(db_response);   
 }); 

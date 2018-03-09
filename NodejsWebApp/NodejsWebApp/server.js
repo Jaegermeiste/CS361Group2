@@ -26,7 +26,8 @@ app.get('/add-employee', function(req, res){
 
 	// Send response code [Error if unable to add]
 
-	res.render('employee', 'This is a test.')
+	context.confirmation_msg = "This is a test"; 
+	res.render('employee', context);
 
 
 });
@@ -45,7 +46,16 @@ app.post('/add-group', function(req, res){
 
 
 // Request Handler to View Employees / Groups
+app.get('/select-group', function(req, res){
 
+	// Define select statement 
+	//
+	//
+	var select_stmt = "SELECT groupName, groupID, firstName, lastName FROM employeeGroup ORDER BY groupName;";
+	db_response = db_simulator(select_stmt)i;
+
+	res.send(db_response);   
+}); 
 
 
 

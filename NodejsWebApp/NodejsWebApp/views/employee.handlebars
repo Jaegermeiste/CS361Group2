@@ -1,25 +1,21 @@
 <!-- Employee Group Page -->
-<!-- Ref: HTML Forms CS 290 lecture -->
- 
-<html>
-    <header>
-
-    </header>
-
-    <body> 
+<!-- Ref: HTML Forms & HTML Tag Examples CS 290 lecture -->
+	<h2> Employees </h2>
+        <table id="employee_table">
+            <thead> 
+                <th> groupName </th> 
+                <th> groupId   </th>
+                <th> lastName  </th>
+                <th> firstName </th>
+            </thead>    
+            {{{table_body}}}
         <table>
-            <th> 
-                <td> groupName </td> 
-                <td> groupId   </td>
-                <td> lastName  </td>
-                <td> firstName </td>
-            </th>    
-            <tbody>
-                {{{table_body}}}
-            </tbody>
-        </table>
 
+<<<<<<< HEAD
         <form action="http://localhost:64351/add-employee" method="post">
+=======
+        <form action="/add-employee method="post">
+>>>>>>> 4138e09d21e37d1b24390bc21f4a29def7676bca
             <fieldset>
                 <legend> Add a Group </legend>
                 <label> Group Name: </label>  <input type="text" id="group_name"/>
@@ -27,13 +23,20 @@
             </fieldset>
             <fieldset>
                 <legend> Add an Employee to a Group </legend>
+<<<<<<< HEAD
                 <label> Employee First Name: </label>     <input type="text" name="first"/>
                 <label> Employee Last Name: </label>     <input type="text" name="last"/>
                 <label> Group: </label>            <input type="text" name="group_selected"/>
+=======
+                <label> Employee First Name: </label>   <input type="text" id="first"/>
+                <label> Employee Last Name: </label>    <input type="text" id="last"/>
+                <label> Group: </label>            	<input type="text" id="group_selected"/>
+>>>>>>> 4138e09d21e37d1b24390bc21f4a29def7676bca
                 <input type="submit" value="Submit Employee"/>
             </fieldset>
         </form>
 
         <b>{{{confirmation_msg}}}</b>
-    </body>
-</html>
+
+	<script src="client.js"> </script>  
+

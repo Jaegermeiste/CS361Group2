@@ -52,7 +52,7 @@ App.use(Session({
 }));
 
 // This is a driver function. This would return the result of a database query.
-function GetHashForUser(username) {
+function Login_GetHashForUser(username) {
     var hashedPassword = Buffer.from('');
 
     // Switch username
@@ -82,14 +82,14 @@ function GetHashForUser(username) {
                 hashedPassword = Buffer.from(hash);
             });
     } else {
-        console.log("GetHashForUser: Invalid username or username not found in database.");
+        console.log("Login_GetHashForUser: Invalid username '" + username + "' not found in user database.");
     }
 
     return hashedPassword;
 }
 
 // This is a driver function. This would return the result of a database query.
-function GetSaltForUser(username) {
+function Login_GetSaltForUser(username) {
     var salt = "";
 
     // Switch username
@@ -99,19 +99,19 @@ function GetSaltForUser(username) {
     else if (username === USER_LOGIN) {
         salt = USER_SALT;
     } else {
-        console.log("GetSaltForUser: Invalid username or username not found in database.");
+        console.log("Login_GetSaltForUser: Invalid username '" + username + "' not found in salt database.");
     }
 
     return salt;
 }
 
 // Attempt to authenticate user
-function Authenticate(username, password) {
+function Login_Authenticate(username, password) {
     // Get password hash for username
-    var validHash = GetHashForUser(username);
+    var validHash = Login_GetHashForUser(username);
 
     // Get Salt for Username
-    var salt = GetSaltForUser(username);
+    var salt = Login_GetSaltForUser(username);
 
     // Pepper is constant for everyone. Build the combined string
     var passwordBuffer = Buffer.from(PEPPER + salt + password);
@@ -129,8 +129,27 @@ function Authenticate(username, password) {
     return false;
 }
 
+// Handle long-term sessions
+function Login_RememberMe(req, remember) {
+    req.session.rememberMe = false;
+    if ((remember === true) || (remember === "true")) {
+        req.session.cookie.maxAge = 30 * 24 * 60 * 60 * 1000;   // 30 days
+        req.session.rememberMe = true;
+        console.log("Persistent session cookie (30 Days).");
+    } else {
+        req.session.cookie.expires = false;                     // User-Agent Session Duration
+        console.log("Temporary session cookie (until user-agent changes).");
+    }
+}
+
+// Logout
+function Login_Logout(req, res, next) {
+    console.log("Logging out user: " + req.session.user);
+    req.session.destroy();
+}
+
 // Display login page
-function Login(req, res, message, next) {
+function Login_Page(req, res, message, next) {
     var loginContext = {};
 
     loginContext.minPwLength = MIN_PASSWORD_LENGTH;
@@ -146,7 +165,7 @@ function Login(req, res, message, next) {
 }
 
 // Display home page
-function GoHome(req, res, next) {
+function Login_GoHome(req, res, next) {
     var context = {};
 
     context.user = req.session.user;
@@ -162,16 +181,124 @@ function GoHome(req, res, next) {
     res.render('loginHome', context);
 }
 
+// Test harness
+App.get('/logintest', function (req, res, next) {
+    var context = {};
+    context.row = [];
+    var result = "";
+
+    console.log("Login Test");
+
+    // Get Username admin
+    result = Login_GetHashForUser(ADMIN_LOGIN);
+    if (result.length > 0) {
+        context.row.push({ "name": "Get username 'admin", "status": "Passed" });
+    } else {
+        context.row.push({ "name": "Get username 'admin'", "status": "Failed" });
+    }
+
+    // Get Username user
+    result = Login_GetHashForUser(USER_LOGIN);
+    if (result.length > 0) {
+        context.row.push({ "name": "Get username 'user'", "status": "Passed" });
+    } else {
+        context.row.push({ "name": "Get username 'user'", "status": "Failed" });
+    }
+
+    // Get Username banana
+    result = Login_GetHashForUser("banana");
+    if (result.length > 0) {
+        context.row.push({ "name": "No username 'banana'", "status": "Failed" });
+    } else {
+        context.row.push({ "name": "No username 'banana'", "status": "Passed" });
+    }
+
+    // Get salt admin
+    result = Login_GetSaltForUser(ADMIN_LOGIN);
+    if (result.length > 0) {
+        context.row.push({ "name": "Get salt 'admin", "status": "Passed" });
+    } else {
+        context.row.push({ "name": "Get salt 'admin'", "status": "Failed" });
+    }
+
+    // Get salt user
+    result = Login_GetSaltForUser(USER_LOGIN);
+    if (result.length > 0) {
+        context.row.push({ "name": "Get salt 'user", "status": "Passed" });
+    } else {
+        context.row.push({ "name": "Get salt 'user'", "status": "Failed" });
+    }
+
+    // Get salt banana
+    result = Login_GetSaltForUser("banana");
+    if (result.length > 0) {
+        context.row.push({ "name": "No salt 'banana", "status": "Failed" });
+    } else {
+        context.row.push({ "name": "No salt 'banana'", "status": "Passed" });
+    }
+
+    // Login user admin
+    result = Login_Authenticate(ADMIN_LOGIN, ADMIN_PASSWORD);
+    if (result) {
+        context.row.push({ "name": "Login_Page user 'admin", "status": "Passed" });
+    } else {
+        context.row.push({ "name": "Login_Page user 'admin'", "status": "Failed" });
+    }
+
+    // Login user user
+    result = Login_Authenticate(USER_LOGIN, USER_PASSWORD);
+    if (result) {
+        context.row.push({ "name": "Login_Page user 'user", "status": "Passed" });
+    } else {
+        context.row.push({ "name": "Login_Page user 'user'", "status": "Failed" });
+    }
+
+    // Deny user banana
+    result = Login_Authenticate("banana", "limeC0c0nut");
+    if (result) {
+        context.row.push({ "name": "Deny user 'banana", "status": "Failed" });
+    } else {
+        context.row.push({ "name": "Deny user 'banana'", "status": "Passed" });
+    }
+
+    // Test user-agent session cookie
+    req.session.user = "test";
+    Login_RememberMe(req, false);
+    if ((req.session.rememberMe === false) && ((req.session.cookie.expires === false) || (req.session.cookie.expires < Date.now()))) {
+        context.row.push({ "name": "Browser Session Cookie", "status": "Passed" });
+    } else {
+        context.row.push({ "name": "Browser Session Cookie", "status": "Failed" });
+    }
+
+    // Test 30 day session cookie
+    Login_RememberMe(req, true);
+    if ((req.session.rememberMe === true) && (req.session.cookie.expires > Date.now())) {
+        context.row.push({ "name": "30 Day Session Cookie", "status": "Passed" });
+    } else {
+        context.row.push({ "name": "30 Day Session Cookie", "status": "Failed" });
+    }
+
+    // Logout test
+    Login_Logout(req);
+    if (req.session) {
+        context.row.push({ "name": "Logout", "status": "Failed" });
+    } else {
+        context.row.push({ "name": "Logout", "status": "Passed" });
+    }
+
+    res.render('loginTest', context);
+});
+
 // Handle get requests
 App.get('/', function (req, res, next) {
     //If there is no session, go to the login page.
     if (!req.session.user) {
         console.log("GET: No active session. Redirect to login screen.");
-        Login(req, res);
+        Login_Page(req, res);
         return;
     }
 
-    GoHome(req, res);
+    Login_GoHome(req, res);
 });
 
 // Handle post requests
@@ -181,30 +308,22 @@ App.post('/', function (req, res, next) {
             // Bad uername or password
             req.session.destroy();
             console.log("Missing username or password. Redirect to login screen.");
-            Login(req, res, "Bad username or password.");
+            Login_Page(req, res, "Bad username or password.");
             return;
         }
         else {
             // Try authentication
             console.log("Attempting authentication.");
-            if (Authenticate(req.body.username, req.body.password)) {
+            if (Login_Authenticate(req.body.username, req.body.password)) {
                 // 80's hacker movie: I'm in!
                 console.log("Authentication succeeded.");
                 req.session.user = req.body.username;
 
                 // Handle rememberMe (this is hard-coded to on in the HTML per customer requirement, but support both modes properly anyway)
-                req.session.rememberMe = false;
-                if (req.body.rememberMe === "true") {
-                    req.session.cookie.maxAge = 30 * 24 * 60 * 60 * 1000;   // 30 days
-                    req.session.rememberMe = true;
-                    console.log("Persistent session cookie (30 Days).");
-                } else {
-                    req.session.cookie.expires = false;                     // User-Agent Session Duration
-                    console.log("Temporary session cookie (until user-agent changes).");
-                }
+                Login_RememberMe(req, req.body.rememberMe);
             } else {
                 console.log("Authentication failed.");
-                Login(req, res, "Access Denied.");
+                Login_Page(req, res, "Access Denied.");
                 return;
             }
         }
@@ -213,18 +332,17 @@ App.post('/', function (req, res, next) {
     //If there is no session, go to the login page.
     if (!req.session.user) {
         console.log("POST: No active session. Redirect to login screen.");
-        Login(req, res);
+        Login_Page(req, res);
         return;
     }
 
     if (req.body['Logout']) {
-        console.log("Logging out user: " + req.session.user);
-        req.session.destroy();
-        Login(req, res, "Logged out successfully.");
+        Login_Logout(req);
+        Login_Page(req, res, "Logged out successfully.");
         return;
     }
 
-    GoHome(req, res);
+    Login_GoHome(req, res);
 });
 
 App.use(function (req, res) {

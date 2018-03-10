@@ -1,21 +1,35 @@
-// 'use strict';
-// var http = require('http');
+// server.js
 
 
 // Boilerplate code from Hello Node, Hello Express, Hello Handlebars & Form Handling CS 290 lectures 
-var port = process.env.PORT || 64351; // changing port so can be run on engr server
+
+var port = process.env.PORT || 65351; // changing port so can be run on engr server
 var express = require('express');
 var app = express();
 var handlebars = require('express-handlebars').create({defaultLayout:'main'});
 var bodyParser = require('body-parser');
 
 app.use(bodyParser.urlencoded({ extended: false }));
-
+app.use(express.static("public")); 
 app.engine('handlebars', handlebars.engine);
 app.set('view engine', 'handlebars');
 app.set('port', port);
 
+function db_select_simulator(stmt){
+	var select_response = JSON.stringify([{"groupName": "Group2", "groupId": "2", "lastName": "Kvavle", "firstName": "Natasha"}, 
+						{"groupName": "TheLesserGroup", "groupId": "3", "lastName":"Foo", "firstName":"Bar"}]);  
+	return select_response; 
+}
 
+// Request Handler for Main/Home Page 
+app.get('/home', function(req,res){
+	res.render('home'); 
+});
+
+// Request Handler for Employee Page
+app.get('/employee', function(req, res){
+	res.render('employee');
+});
 
 // Request Handler to Add Employee
 app.get('/add-employee', function(req, res){
@@ -26,11 +40,9 @@ app.get('/add-employee', function(req, res){
 	// Add to employee JSON file if found
 
 	// Send response code [Error if unable to add]
-
+	var context = {};	
 	context.confirmation_msg = "This is a test"; 
 	res.render('employee', context);
-
-
 });
 
 
@@ -42,19 +54,18 @@ app.post('/add-group', function(req, res){
 	// Add Group to JSON file if it does not exist
 
 	// Send response code [Error if unable to add]
-
 });
 
 
 // Request Handler to View Employees / Groups
-app.get('/select-group', function(req, res){
+app.get('/view-employee', function(req, res){
 
 	// Define select statement 
 	//
 	//
 	var select_stmt = "SELECT groupName, groupID, firstName, lastName FROM employeeGroup ORDER BY groupName;";
-	db_response = db_simulator(select_stmt);
-
+	db_response = db_select_simulator(select_stmt);
+	console.log("Sending the following response from DB: " + db_response);  	 
 	res.send(db_response);   
 }); 
 

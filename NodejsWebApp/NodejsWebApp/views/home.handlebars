@@ -1,0 +1,19 @@
+<h2>Received a {{reqType}} request.</h2>
+
+
+<h3>The following information was received:</h3>
+
+<div>
+<ul>
+	{{#each paramList}}
+		<li>{{this.name}}: {{this.value}}</li>
+	{{/each}}
+</ul>
+
+<h3>{{postHead}}</h3>
+<div>
+<ul>
+	{{#each postBody}}
+		<li>{{this.name}}: {{this.value}}</li>
+	{{/each}}
+</ul>

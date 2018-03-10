@@ -9,27 +9,47 @@ var app = express();
 var handlebars = require('express-handlebars').create({defaultLayout:'main'});
 var bodyParser = require('body-parser');
 
-app.use(bodyParser.urlencoded({ extended: false }));
-
 app.engine('handlebars', handlebars.engine);
 app.set('view engine', 'handlebars');
 app.set('port', port);
 
 
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+
+function addEmployee(employee){
+	console.log('Added employee' + employee.firstName + ' ' + employee.lastName);
+};
 
 // Request Handler to Add Employee
 app.get('/add-employee', function(req, res){
 
+	var context = {};
+	res.render('employee', context);
+
+});
+
+// Request Handler to Add Employee
+app.post('/add-employee', function(req, res){
+
+	var context = {};
+
 	// Parse request body
+
+	var employee = {};
+
+	employee.firstName = req.body.first;
+	employee.lastName = req.body.last;
+	employee.group = req.body.group_selected;
 
 	// Check for existence of Group
 	// Add to employee JSON file if found
 
 	// Send response code [Error if unable to add]
 
-	context.confirmation_msg = "This is a test"; 
-	res.render('employee', context);
+	addEmployee(employee);
 
+	res.render('employee', context);
 
 });
 

@@ -1,6 +1,5 @@
 // server.js
 
-
 // Boilerplate code from Hello Node, Hello Express, Hello Handlebars & Form Handling CS 290 lectures 
 
 var port = process.env.PORT || 65351; // changing port so can be run on engr server
@@ -8,15 +7,19 @@ var express = require('express');
 var app = express();
 var handlebars = require('express-handlebars').create({defaultLayout:'main'});
 var bodyParser = require('body-parser');
+// var mysql = require('mysql');
+// var pool = mysql.pool;
 
-<<<<<<< HEAD
-=======
+
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static("public")); 
->>>>>>> 4138e09d21e37d1b24390bc21f4a29def7676bca
+
 app.engine('handlebars', handlebars.engine);
 app.set('view engine', 'handlebars');
 app.set('port', port);
+
+
+
 
 function db_select_simulator(stmt){
 	var select_response = JSON.stringify([{"groupName": "Group2", "groupId": "2", "lastName": "Kvavle", "firstName": "Natasha"}, 
@@ -24,14 +27,15 @@ function db_select_simulator(stmt){
 	return select_response; 
 }
 
-<<<<<<< HEAD
+
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 function addEmployee(employee){
 	console.log('Added employee' + employee.firstName + ' ' + employee.lastName);
 };
-=======
+
+
 // Request Handler for Main/Home Page 
 app.get('/home', function(req,res){
 	res.render('home'); 
@@ -41,55 +45,56 @@ app.get('/home', function(req,res){
 app.get('/employee', function(req, res){
 	res.render('employee');
 });
->>>>>>> 4138e09d21e37d1b24390bc21f4a29def7676bca
-
-// Request Handler to Add Employee
-app.get('/add-employee', function(req, res){
-
-	var context = {};
-	res.render('employee', context);
-
-});
 
 // Request Handler to Add Employee
 app.post('/add-employee', function(req, res){
 
 	var context = {};
 
-	// Parse request body
+	// Below code is meant to operate with a live SQL DB. Non-functional currently
+	pool.query("INSERT INTO employees(first, last, groupID) VALUES (?, ?, ?)", [req.body.first, req.body.last, req.body.group_selected], function (err, result){
 
-	var employee = {};
+		if(err){
+			next(err);
+			return;
+		}
 
-	employee.firstName = req.body.first;
-	employee.lastName = req.body.last;
-	employee.group = req.body.group_selected;
+		res.status(200);
 
-	// Check for existence of Group
-	// Add to employee JSON file if found
+		context.port = port;
+		context.confirmation_msg = 'Successfully Added Employee';
 
-	// Send response code [Error if unable to add]
-<<<<<<< HEAD
+		console.log('Added employee' + employee.firstName + ' ' + employee.lastName);
 
-	addEmployee(employee);
+	});
 
 	res.render('employee', context);
 
-=======
-	var context = {};	
-	context.confirmation_msg = "This is a test"; 
-	res.render('employee', context);
->>>>>>> 4138e09d21e37d1b24390bc21f4a29def7676bca
 });
 
 
 // Request Handler to Add Group
 app.post('/add-group', function(req, res){
 
-	// Parse request body
+	var context = {};
 
-	// Add Group to JSON file if it does not exist
+	// Below code is meant to operate with a live SQL DB. Non-functional currently
+	pool.query("INSERT INTO group(groupName) VALUES (?)", req.body.group_name, function (err, result){
 
-	// Send response code [Error if unable to add]
+		if(err){
+			next(err);
+			return;
+		}
+
+		res.status(200);
+
+		context.port = port;
+		context.confirmation_msg = 'Successfully Added Group';
+
+	});
+
+	res.render('employee', context);
+
 });
 
 

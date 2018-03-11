@@ -37,21 +37,41 @@ function getEmployee() {
 // // Insert Functions 
 function addEmployee(first, last, group) {
 
+	var context = {};
+
 	// Create query
-	
-	// Log  
-    	console.log('Added employee ' + first + ' ' + last + ' to ' + group );
-	// add in db handlinig
-	var context = {}
-	context.confirmation_msg = 'Succesfully Added Employee';  
-	return context.confirmation_msg
+	var add_query = "INSERT INTO employees(first, last, groupID) VALUES (?, ?, ?)";
+
+	// Handle in db -- de-comment when db is live
+	// pool.query(add_query, [first, last, group], function (err, result) {
+
+ //        if (err) {
+ //            next(err);
+ //            return;
+ //        });
+
+
+	// Log
+    console.log('Added employee ' + first + ' ' + last + ' to ' + group );
+	var confirmation_msg = 'Succesfully Added Employee';  
+	return context;
 }
 
 function addGroup(group) {
 
 	// create query 
-	// add in db handling
-	// return confirmation_msg	
+	var add_query = "INSERT INTO group(groupName) VALUES (?)";
+
+	// Handle in db -- de-comment when db is live
+	// pool.query(add_query, [group], function (err, result) {
+
+ //        if (err) {
+ //            next(err);
+ //            return;
+ //        });
+
+
+	// Log
 	var context = {};
 	context.confirmation_msg = 'Successfully Added Group'; 
  	return context; 
@@ -76,23 +96,21 @@ app.post('/add-employee', function (req, res) {
 
     var context = {};
 
-    // This could be (and prob should be) it's own function so we can easily do a unit test  	
+    // This could be (and prob should be) it's own function so we can easily do a unit test
     // Below code is meant to operate with a live SQL DB. Non-functional currently
-    pool.query("INSERT INTO employees(first, last, groupID) VALUES (?, ?, ?)", [req.body.first, req.body.last, req.body.group_selected], function (err, result) {
 
-        if (err) {
-            next(err);
-            return;
-        }
+    first = req.body.first;
+    last = req.body.last;
+    group = req.body.group;
 
-        res.status(200);
+    addEmployee(first, last, group);
 
-        context.port = port;
-        context.confirmation_msg = 'Successfully Added Employee';
+    res.status(200);
 
-        console.log('Added employee' + employee.firstName + ' ' + employee.lastName);
+    context.port = port;
+    context.confirmation_msg = 'Successfully Added Employee';
 
-    });
+    console.log('Added employee' + employee.firstName + ' ' + employee.lastName);
 
     res.render('employee', context);
 
@@ -106,20 +124,16 @@ app.post('/add-group', function (req, res) {
 
     // This should be a function for unit test purposes
     // Below code is meant to operate with a live SQL DB. Non-functional currently
-    pool.query("INSERT INTO group(groupName) VALUES (?)", req.body.group_name, function (err, result) {
 
-        if (err) {
-            next(err);
-            return;
-        }
+    groupName = req.body.group_name;
 
-        res.status(200);
+    addGroup(groupName);
 
-        context.port = port;
-        context.confirmation_msg = 'Successfully Added Group';
+    res.status(200);
+
+    context.port = port;
+    context.confirmation_msg = 'Successfully Added Group ' + groupName;
  
-    });
-
     res.render('employee', context);
 
 });

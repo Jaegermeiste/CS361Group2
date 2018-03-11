@@ -7,7 +7,7 @@ var port = process.env.PORT || 65351; // changing port so can be run on engr ser
 // var port = process.argv[2]
 
 var Express = require('express');
-var Handlebars = require('express-handlebars').create({ defaultLayout: "loginMain" });
+var Handlebars = require('express-handlebars').create({ defaultLayout: "main" });
 var BodyParser = require('body-parser');
 var App = Express();
 var mysql = require('mysql');
@@ -22,17 +22,25 @@ App.engine('handlebars', Handlebars.engine);
 App.set('view engine', 'handlebars');
 App.set('port', port);
 
+// Exports
+module.exports.Express = Express;
+module.exports.Handlebars = Handlebars;
+module.exports.BodyParser = BodyParser;
+module.exports.App = App;
+module.exports.MySQL = mysql;
+module.exports.Pool = pool;
 
 // ANOMALIES 
-// app.use('/anomalies', require('./anomalies.js'));
-// app.use('/anomalies-employees', require('./anomalies-employees.js'));
-// app.use('/anomalies-types', require('./anomalies-types.js'));
-// app.use('/anomalies-groups', require('./anomalies-groups.js'));
+//app.use('/anomalies', require('./anomalies.js'));
+//app.use('/anomalies-employees', require('./anomalies-employees.js'));
+//app.use('/anomalies-types', require('./anomalies-types.js'));
+//app.use('/anomalies-groups', require('./anomalies-groups.js'));
 
 
 // LOGIN 
-require('./loginServer.js'); 
-
+var Login = require('./loginServer.js');
+var Login_Page = Login.Login_Page;
+var Logout = Login.Logout_Page;
 
 // EMPLOYEES 
 // DB Simulators 
@@ -94,13 +102,30 @@ function addGroup(group) {
 // *** Request Handlers ***
 
 // Request Handler for Main/Home Page 
-App.get('/', function(req,res){
+/*App.get('/', function(req,res){
     var context = {};
     res.render('home', context);
-});
+});*/ // Login handles / for get and post
 
 App.get('/home', function(req,res){
-    var context = {};	
+    var context = {};
+
+    //If there is no session, go to the login page.
+    if ((!req.session) || (!req.session.user)) {
+        console.log("No active session. Redirect to login screen.");
+        res.redirect('/');
+        return;
+    }
+
+    // Handle Logout Request
+    if ((req.body['Logout']) || (req.query.Logout === "Logout")) {
+        Logout(req);
+        //Login_Page(req, res, "Logged out successfully.");
+        //res.setHeader("Message", "Logged out successfully.");
+        res.redirect('/?Message=Logged out successfully.');
+        return;
+    }
+
     res.render('home', context);
 });
 
@@ -108,11 +133,44 @@ App.get('/home', function(req,res){
 // // Default GET Handlers for Main Employee Page
 App.get('/employee', function(req, res){
     var context = {};
+
+    //If there is no session, go to the login page.
+    if ((!req.session) || (!req.session.user)) {
+        console.log("No active session. Redirect to login screen.");
+        res.redirect('/');
+        return;
+    }
+
+    // Handle Logout Request
+    if ((req.body['Logout']) || (req.query.Logout === "Logout")) {
+        Logout(req);
+        //Login_Page(req, res, "Logged out successfully.");
+        //res.setHeader("Message", "Logged out successfully.");
+        res.redirect('/?Message=Logged out successfully.');
+        return;
+    }
+
     res.render('employee', context);
 });
 
 App.get('/add-employee', function(req, res){
     var context = {};
+
+    //If there is no session, go to the login page.
+    if ((!req.session) || (!req.session.user)) {
+        console.log("No active session. Redirect to login screen.");
+        res.redirect('/');
+        return;
+    }
+
+    // Handle Logout Request
+    if ((req.body['Logout']) || (req.query.Logout === "Logout")) {
+        Logout(req);
+        //Login_Page(req, res, "Logged out successfully.");
+        //res.setHeader("Message", "Logged out successfully.");
+        res.redirect('/?Message=Logged out successfully.');
+        return;
+    }
 
     var confirmation_msg = "No employee added, use POST.";
     res.render('employee', context);
@@ -121,6 +179,22 @@ App.get('/add-employee', function(req, res){
 
 App.get('/add-group', function(req, res){
     var context = {};
+
+    //If there is no session, go to the login page.
+    if ((!req.session) || (!req.session.user)) {
+        console.log("No active session. Redirect to login screen.");
+        res.redirect('/');
+        return;
+    }
+
+    // Handle Logout Request
+    if ((req.body['Logout']) || (req.query.Logout === "Logout")) {
+        Logout(req);
+        //Login_Page(req, res, "Logged out successfully.");
+        //res.setHeader("Message", "Logged out successfully.");
+        res.redirect('/?Message=Logged out successfully.');
+        return;
+    }
 
     var confirmation_msg = "No group added, use POST.";
     res.render('employee', context);
@@ -132,6 +206,22 @@ App.get('/add-group', function(req, res){
 App.post('/add-employee', function (req, res) {
 
     var context = {};
+
+    //If there is no session, go to the login page.
+    if ((!req.session) || (!req.session.user)) {
+        console.log("No active session. Redirect to login screen.");
+        res.redirect('/');
+        return;
+    }
+
+    // Handle Logout Request
+    if ((req.body['Logout']) || (req.query.Logout === "Logout")) {
+        Logout(req);
+        //Login_Page(req, res, "Logged out successfully.");
+        //res.setHeader("Message", "Logged out successfully.");
+        res.redirect('/?Message=Logged out successfully.');
+        return;
+    }
 
     // This could be (and prob should be) it's own function so we can easily do a unit test
     // Below code is meant to operate with a live SQL DB. Non-functional currently
@@ -159,6 +249,22 @@ App.post('/add-group', function (req, res) {
 
     var context = {};
 
+    //If there is no session, go to the login page.
+    if ((!req.session) || (!req.session.user)) {
+        console.log("No active session. Redirect to login screen.");
+        res.redirect('/');
+        return;
+    }
+
+    // Handle Logout Request
+    if ((req.body['Logout']) || (req.query.Logout === "Logout")) {
+        Logout(req);
+        //Login_Page(req, res, "Logged out successfully.");
+        //res.setHeader("Message", "Logged out successfully.");
+        res.redirect('/?Message=Logged out successfully.');
+        return;
+    }
+
     // This should be a function for unit test purposes
     // Below code is meant to operate with a live SQL DB. Non-functional currently
 
@@ -177,7 +283,23 @@ App.post('/add-group', function (req, res) {
 
 
 // // Request Handler to View Employees / Groups
-App.get('/view-employee', function(req, res){
+App.get('/view-employee', function (req, res) {
+
+    //If there is no session, go to the login page.
+    if ((!req.session) || (!req.session.user)) {
+        console.log("No active session. Redirect to login screen.");
+        res.redirect('/');
+        return;
+    }
+
+    // Handle Logout Request
+    if ((req.body['Logout']) || (req.query.Logout === "Logout")) {
+        Logout(req);
+        //Login_Page(req, res, "Logged out successfully.");
+        //res.setHeader("Message", "Logged out successfully.");
+        res.redirect('/?Message=Logged out successfully.');
+        return;
+    }
 
     // Make query to "DB"
     db_response = getEmployee();
@@ -191,7 +313,7 @@ App.get('/view-employee', function(req, res){
 
 
 // Testing Harness => Needs to be updated with changes made to code
-App.get('/employeetest', function(req, res, next){
+App.get('/employeetest', function (req, res, next) {
 
     	// test addEmployee()
     	// happy paths
@@ -271,7 +393,8 @@ App.get('/employeetest', function(req, res, next){
 
    
 });
- 
+
+/*
 // // Default 404 Error -- From CS 290 lecture "Hello Express"
 App.use(function(req,res){
  res.type('text/plain');
@@ -290,6 +413,52 @@ App.use(function(err, req, res, next){
  res.send('500 - Server Error');
  res.render('500');
 });
+*/
+
+App.use(function (req, res) {
+    //If there is no session, go to the login page.
+    if ((!req.session) || (!req.session.user)) {
+        console.log("No active session. Redirect to login screen.");
+        res.redirect('/');
+        return;
+    }
+
+    // Handle Logout Request
+    if ((req.body['Logout']) || (req.query.Logout === "Logout")) {
+        Logout(req);
+        //Login_Page(req, res, "Logged out successfully.");
+        //res.setHeader("Message", "Logged out successfully.");
+        res.redirect('/?Message=Logged out successfully.');
+        return;
+    }
+
+    res.status = (404);
+    res.render("404");
+});
+
+App.use(function (err, req, res, next) {
+    //If there is no session, go to the login page.
+    if ((!req.session) || (!req.session.user)) {
+        console.log("No active session. Redirect to login screen.");
+        res.redirect('/');
+        return;
+    }
+
+    // Handle Logout Request
+    if ((req.body['Logout']) || (req.query.Logout === "Logout")) {
+        Logout(req);
+        //Login_Page(req, res, "Logged out successfully.");
+        //res.setHeader("Message", "Logged out successfully.");
+        res.redirect('/?Message=Logged out successfully.');
+        return;
+    }
+
+    console.error(err.stack);
+    res.type("plain/text");
+    res.status(500);
+    res.render("500");
+});
+
 
 
 App.listen(App.get('port'), function(){

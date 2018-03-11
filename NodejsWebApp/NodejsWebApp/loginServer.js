@@ -14,15 +14,39 @@ const MIN_PASSWORD_LENGTH = 8;
 const MAX_PASSWORD_LENGTH = 64;
 
 //#include
-var Express = require("express");
-var Handlebars = require("express-handlebars").create({ defaultLayout: "loginMain" });
-var BodyParser = require("body-parser");
+
+//var Express = require("express");
+//var Handlebars = require("express-handlebars").create({ defaultLayout: "main" });
+//var BodyParser = require("body-parser");
 /*var MySQL = require("./dbcon.js");*/
 var Crypto = require('crypto');
 var SecurePassword = require('secure-password');
 var Session = require('express-session');
 var Helmet = require('helmet');
-var App = Express();
+//var App = Express();
+
+// Exports
+module.exports.Crypto = Crypto;
+module.exports.SecurePassword = SecurePassword;
+module.exports.Session = Session;
+module.exports.Helmet = Helmet;
+module.exports.Login_Page = function (req, res, message, next) {
+    Login_Page(res, req, message, next);
+    return;
+};
+module.exports.Logout_Page = function (req, res, next) {
+    Login_Logout(req, res, next);
+    return;
+};
+
+var Server = require('./server.js'); 
+
+var Express = Server.Express;
+var Handlebars = Server.Handlebars;
+var BodyParser = Server.BodyParser;
+var App = Server.App;
+var MySql = Server.MySQL;
+var Pool = Server.Pool;
 
 // Initialize password engine
 var passwordEngine = SecurePassword({
@@ -36,7 +60,7 @@ App.use(Helmet());
 // Standard Express/Handlebars boilerplate
 App.engine("handlebars", Handlebars.engine);
 App.set("view engine", "handlebars");
-App.set("port", 1337);
+//App.set("port", 1337);
 App.use(BodyParser.urlencoded({ extended: true }));
 App.use(BodyParser.json());
 App.use(Express.static("public"));
@@ -151,6 +175,7 @@ function Login_Logout(req, res, next) {
 // Display login page
 function Login_Page(req, res, message, next) {
     var loginContext = {};
+    loginContext.layout = "loginMain";
 
     loginContext.minPwLength = MIN_PASSWORD_LENGTH;
     loginContext.maxPwLength = MAX_PASSWORD_LENGTH;
@@ -167,6 +192,7 @@ function Login_Page(req, res, message, next) {
 // Display home page
 function Login_GoHome(req, res, next) {
     var context = {};
+    context.layout = "main";
 
     context.user = req.session.user;
     context.rememberMe = "false";
@@ -178,12 +204,14 @@ function Login_GoHome(req, res, next) {
         context.sessionExpiration = "When Browser Closes";
     }
 
-    res.render('loginHome', context);
+    //res.render('home', context);
+    res.redirect('/home');
 }
 
 // Test harness
 App.get('/logintest', function (req, res, next) {
     var context = {};
+    context.layout = "loginMain";
     context.row = [];
     var result = "";
 
@@ -287,14 +315,22 @@ App.get('/logintest', function (req, res, next) {
     }
 
     res.render('loginTest', context);
+    return;
 });
 
 // Handle get requests
 App.get('/', function (req, res, next) {
     //If there is no session, go to the login page.
-    if (!req.session.user) {
+    if ((!req.session) || (!req.session.user)) {
         console.log("GET: No active session. Redirect to login screen.");
-        Login_Page(req, res);
+        Login_Page(req, res, req.query.Message);
+        return;
+    }
+
+    // Handle Logout Request
+    if ((req.body['Logout']) || (req.query.Logout === "Logout")) {
+        Login_Logout(req);
+        Login_Page(req, res, "Logged out successfully.");
         return;
     }
 
@@ -305,7 +341,7 @@ App.get('/', function (req, res, next) {
 App.post('/', function (req, res, next) {
     if (req.body["Login"]) {
         if (!req.body.username || !req.body.password) {
-            // Bad uername or password
+            // Bad username or password
             req.session.destroy();
             console.log("Missing username or password. Redirect to login screen.");
             Login_Page(req, res, "Bad username or password.");
@@ -330,13 +366,13 @@ App.post('/', function (req, res, next) {
     }
 
     //If there is no session, go to the login page.
-    if (!req.session.user) {
+    if ((!req.session) || (!req.session.user)) {
         console.log("POST: No active session. Redirect to login screen.");
         Login_Page(req, res);
         return;
     }
 
-    if (req.body['Logout']) {
+    if ((req.body['Logout']) || (req.query.Logout === "Logout")) {
         Login_Logout(req);
         Login_Page(req, res, "Logged out successfully.");
         return;

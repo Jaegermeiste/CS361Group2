@@ -28,9 +28,34 @@
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="anomalies-employees.js" />
+    <Compile Include="anomalies-groups.js" />
+    <Compile Include="anomalies-types.js" />
+    <Compile Include="anomalies.js" />
+    <Compile Include="dbcon.js" />
+    <Compile Include="loginServer.js" />
+    <Compile Include="public\client.js" />
+    <Compile Include="public\deleteanomaly.js" />
     <Compile Include="server.js" />
     <Content Include="package.json" />
     <Content Include="README.md" />
+    <Content Include="views\.home.handlebars.swp" />
+    <Content Include="views\404.handlebars" />
+    <Content Include="views\500.handlebars" />
+    <Content Include="views\anomalies.handlebars" />
+    <Content Include="views\employee.handlebars" />
+    <Content Include="views\home.handlebars" />
+    <Content Include="views\home.handlebars.save" />
+    <Content Include="views\layouts\loginMain.handlebars" />
+    <Content Include="views\layouts\main.handlebars" />
+    <Content Include="views\login.handlebars" />
+    <Content Include="views\loginHome.handlebars" />
+    <Content Include="views\loginTest.handlebars" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="public\" />
+    <Folder Include="views\" />
+    <Folder Include="views\layouts\" />
   </ItemGroup>
   <!-- Do not delete the following Import Project.  While this appears to do nothing it is a marker for setting TypeScript properties before our import that depends on them. -->
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="False" />

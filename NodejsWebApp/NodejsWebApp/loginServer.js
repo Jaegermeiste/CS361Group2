@@ -208,14 +208,14 @@ function Login_GoHome(req, res, next) {
     res.redirect('/home');
 }
 
-// Test harness
+// Unit Test harness
 App.get('/logintest', function (req, res, next) {
     var context = {};
     context.layout = "loginMain";
     context.row = [];
     var result = "";
 
-    console.log("Login Test");
+    console.log("Login Unit Test");
 
     // Get Username admin
     result = Login_GetHashForUser(ADMIN_LOGIN);
@@ -314,6 +314,230 @@ App.get('/logintest', function (req, res, next) {
         context.row.push({ "name": "Logout", "status": "Passed" });
     }
 
+    console.log("Test complete");
+
+    res.render('loginTest', context);
+    return;
+});
+
+// Integration Test harness
+// NOTE: This may trigger the browser redirect loop detection. Just tell the browser to try again and the tests will complete
+var integrationtest = {};
+integrationtest.LoggedOut = false;
+integrationtest.Running = false;
+App.get('/integrationtest-login', function (req, res, next) {
+    var context = {};
+    context.layout = "loginMain";
+    context.row = [];
+    var result = "";
+
+    if (integrationtest.Running === false) {
+        console.log("Login Integration Test");
+        integrationtest.LoggedOut = false;
+        integrationtest.Running = true;
+    }
+
+    // Test Home Login/Logout
+    if (integrationtest.HomeTest === "Running") {
+        if (integrationtest.LoggedOut === true) {
+            integrationtest.LoggedOut = false;
+            integrationtest.HomeTest = "Passed";
+        }
+        else {
+            integrationtest.LoggedOut = false;
+            integrationtest.HomeTest = "Failed";
+        }
+    }
+    if (integrationtest.HomeTest) {
+        context.row.push({ "name": "Login/Logout home", "status": integrationtest.HomeTest });
+    } else {
+        integrationtest.HomeTest = "Running";
+        console.log("Login user 'test'");
+        req.session.user = "test";              // Login
+        console.log("Redirect 'home'");
+        res.redirect('/home?Logout=Logout');    // Trigger logout
+        return;
+    }
+
+    // Test Employee Login/Logout
+    if (integrationtest.EmployeeTest === "Running") {
+        if (integrationtest.LoggedOut === true) {
+            integrationtest.LoggedOut = false;
+            integrationtest.EmployeeTest = "Passed";
+        }
+        else {
+            integrationtest.LoggedOut = false;
+            integrationtest.EmployeeTest = "Failed";
+        }
+    }
+    if (integrationtest.EmployeeTest) {
+        context.row.push({ "name": "Login/Logout employee", "status": integrationtest.EmployeeTest });
+    } else {
+        integrationtest.EmployeeTest = "Running";
+        console.log("Login user 'test'");
+        req.session.user = "test";              // Login
+        console.log("Redirect 'employee'");
+        res.redirect('/employee?Logout=Logout');    // Trigger logout
+        return;
+    }
+
+    // Test Add Employee Login/Logout
+    if (integrationtest.AddEmployeeTest === "Running") {
+        if (integrationtest.LoggedOut === true) {
+            integrationtest.LoggedOut = false;
+            integrationtest.AddEmployeeTest = "Passed";
+        }
+        else {
+            integrationtest.LoggedOut = false;
+            integrationtest.AddEmployeeTest = "Failed";
+        }
+    }
+    if (integrationtest.AddEmployeeTest) {
+        context.row.push({ "name": "Login/Logout add-employee", "status": integrationtest.AddEmployeeTest });
+    } else {
+        integrationtest.AddEmployeeTest = "Running";
+        console.log("Login user 'test'");
+        req.session.user = "test";              // Login
+        console.log("Redirect 'add-employee'");
+        res.redirect('/add-employee?Logout=Logout');    // Trigger logout
+        return;
+    }
+
+    // Test Add Group Login/Logout
+    if (integrationtest.AddGroupTest === "Running") {
+        if (integrationtest.LoggedOut === true) {
+            integrationtest.LoggedOut = false;
+            integrationtest.AddGroupTest = "Passed";
+        }
+        else {
+            integrationtest.LoggedOut = false;
+            integrationtest.AddGroupTest = "Failed";
+        }
+    }
+    if (integrationtest.AddGroupTest) {
+        context.row.push({ "name": "Login/Logout add-group", "status": integrationtest.AddGroupTest });
+    } else {
+        integrationtest.AddGroupTest = "Running";
+        console.log("Login user 'test'");
+        req.session.user = "test";              // Login
+        console.log("Redirect 'add-group'");
+        res.redirect('/add-group?Logout=Logout');    // Trigger logout
+        return;
+    }
+
+    // Test View Employee Login/Logout
+    if (integrationtest.ViewEmployeeTest === "Running") {
+        if (integrationtest.LoggedOut === true) {
+            integrationtest.LoggedOut = false;
+            integrationtest.ViewEmployeeTest = "Passed";
+        }
+        else {
+            integrationtest.LoggedOut = false;
+            integrationtest.ViewEmployeeTest = "Failed";
+        }
+    }
+    if (integrationtest.ViewEmployeeTest) {
+        context.row.push({ "name": "Login/Logout view-employee", "status": integrationtest.ViewEmployeeTest });
+    } else {
+        integrationtest.ViewEmployeeTest = "Running";
+        console.log("Login user 'test'");
+        req.session.user = "test";              // Login
+        console.log("Redirect 'view-employee'");
+        res.redirect('/view-employee?Logout=Logout');    // Trigger logout
+        return;
+    }
+
+    // Test Anomalies Login/Logout
+    if (integrationtest.AnomaliesTest === "Running") {
+        if (integrationtest.LoggedOut === true) {
+            integrationtest.LoggedOut = false;
+            integrationtest.AnomaliesTest = "Passed";
+        }
+        else {
+            integrationtest.LoggedOut = false;
+            integrationtest.AnomaliesTest = "Failed";
+        }
+    }
+    if (integrationtest.AnomaliesTest) {
+        context.row.push({ "name": "Login/Logout anomalies", "status": integrationtest.AnomaliesTest });
+    } else {
+        integrationtest.AnomaliesTest = "Running";
+        console.log("Login user 'test'");
+        req.session.user = "test";              // Login
+        console.log("Redirect 'anomalies'");
+        res.redirect('/anomalies?Logout=Logout');    // Trigger logout
+        return;
+    }
+
+    // Test Anomalies Employees Login/Logout
+    if (integrationtest.AnomaliesEmployeesTest === "Running") {
+        if (integrationtest.LoggedOut === true) {
+            integrationtest.LoggedOut = false;
+            integrationtest.AnomaliesEmployeesTest = "Passed";
+        }
+        else {
+            integrationtest.LoggedOut = false;
+            integrationtest.AnomaliesEmployeesTest = "Failed";
+        }
+    }
+    if (integrationtest.AnomaliesEmployeesTest) {
+        context.row.push({ "name": "Login/Logout anomalies-employees", "status": integrationtest.AnomaliesEmployeesTest });
+    } else {
+        integrationtest.AnomaliesEmployeesTest = "Running";
+        console.log("Login user 'test'");
+        req.session.user = "test";              // Login
+        console.log("Redirect 'anomalies-employees'");
+        res.redirect('/anomalies-employees?Logout=Logout');    // Trigger logout
+        return;
+    }
+
+    // Test Anomalies Types Login/Logout
+    if (integrationtest.AnomaliesTypesTest === "Running") {
+        if (integrationtest.LoggedOut === true) {
+            integrationtest.LoggedOut = false;
+            integrationtest.AnomaliesTypesTest = "Passed";
+        }
+        else {
+            integrationtest.LoggedOut = false;
+            integrationtest.AnomaliesTypesTest = "Failed";
+        }
+    }
+    if (integrationtest.AnomaliesTypesTest) {
+        context.row.push({ "name": "Login/Logout anomalies-types", "status": integrationtest.AnomaliesTypesTest });
+    } else {
+        integrationtest.AnomaliesTypesTest = "Running";
+        console.log("Login user 'test'");
+        req.session.user = "test";              // Login
+        console.log("Redirect 'anomalies-types'");
+        res.redirect('/anomalies-types?Logout=Logout');    // Trigger logout
+        return;
+    }
+
+    // Test Anomalies Groups Login/Logout
+    if (integrationtest.AnomaliesGroupsTest === "Running") {
+        if (integrationtest.LoggedOut === true) {
+            integrationtest.LoggedOut = false;
+            integrationtest.AnomaliesGroupsTest = "Passed";
+        }
+        else {
+            integrationtest.LoggedOut = false;
+            integrationtest.AnomaliesGroupsTest = "Failed";
+        }
+    }
+    if (integrationtest.AnomaliesGroupsTest) {
+        context.row.push({ "name": "Login/Logout anomalies-groups", "status": integrationtest.AnomaliesGroupsTest });
+    } else {
+        integrationtest.AnomaliesGroupsTest = "Running";
+        console.log("Login user 'test'");
+        req.session.user = "test";              // Login
+        console.log("Redirect 'anomalies-groups'");
+        res.redirect('/anomalies-groups?Logout=Logout');    // Trigger logout
+        return;
+    }
+
+    console.log("Test complete");
+    integrationtest.Running = false;
+
     res.render('loginTest', context);
     return;
 });
@@ -322,6 +546,13 @@ App.get('/logintest', function (req, res, next) {
 App.get('/', function (req, res, next) {
     //If there is no session, go to the login page.
     if ((!req.session) || (!req.session.user)) {
+        // Support integration testing
+        if (integrationtest.Running) {
+            integrationtest.LoggedOut = true;
+            res.redirect('/integrationtest-login');
+            return;
+        }
+
         console.log("GET: No active session. Redirect to login screen.");
         Login_Page(req, res, req.query.Message);
         return;
@@ -331,6 +562,13 @@ App.get('/', function (req, res, next) {
     if ((req.body['Logout']) || (req.query.Logout === "Logout")) {
         Login_Logout(req);
         Login_Page(req, res, "Logged out successfully.");
+
+        // Support integration testing
+        if (integrationtest.Running) {
+            integrationtest.LoggedOut = true;
+            res.redirect('/integrationtest-login');
+            return;
+        }
         return;
     }
 

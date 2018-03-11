@@ -13,7 +13,7 @@ module.exports = function(){
         });
     }
 
-    router.get('/', function(req, res){
+    router.get('/anomalies-groups', function(req, res){
         var callbackCount = 0;
         var context = {};
         context.jsscripts = ["deleteanomaly.js"];

@@ -5,28 +5,36 @@
 
 var port = process.env.PORT || 65351; // changing port so can be run on engr server
 // var port = process.argv[2]
-var express = require('express');
-var app = express();
-var handlebars = require('express-handlebars').create({defaultLayout:'main'});
-var bodyParser = require('body-parser');
+
+var Express = require('express');
+var Handlebars = require('express-handlebars').create({ defaultLayout: "loginMain" });
+var BodyParser = require('body-parser');
+var App = Express();
 var mysql = require('mysql');
 var pool = mysql.pool;
 
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
+App.use(BodyParser.urlencoded({ extended: false }));
+App.use(BodyParser.json());
 
-app.use(express.static("public"));
+App.use(Express.static("public"));
 
-app.engine('handlebars', handlebars.engine);
-app.set('view engine', 'handlebars');
-app.set('port', port);
-
-app.use('/anomalies', require('./anomalies.js'));
-app.use('/anomalies-employees', require('./anomalies-employees.js'));
-app.use('/anomalies-types', require('./anomalies-types.js'));
-app.use('/anomalies-groups', require('./anomalies-groups.js'));
+App.engine('handlebars', Handlebars.engine);
+App.set('view engine', 'handlebars');
+App.set('port', port);
 
 
+// ANOMALIES 
+// app.use('/anomalies', require('./anomalies.js'));
+// app.use('/anomalies-employees', require('./anomalies-employees.js'));
+// app.use('/anomalies-types', require('./anomalies-types.js'));
+// app.use('/anomalies-groups', require('./anomalies-groups.js'));
+
+
+// LOGIN 
+require('./loginServer.js'); 
+
+
+// EMPLOYEES 
 // DB Simulators 
 
 // // Select Functions
@@ -86,24 +94,24 @@ function addGroup(group) {
 // *** Request Handlers ***
 
 // Request Handler for Main/Home Page 
-app.get('/', function(req,res){
+App.get('/', function(req,res){
     var context = {};
     res.render('home', context);
 });
 
-app.get('/home', function(req,res){
+App.get('/home', function(req,res){
     var context = {};	
     res.render('home', context);
 });
 
 
 // // Default GET Handlers for Main Employee Page
-app.get('/employee', function(req, res){
+App.get('/employee', function(req, res){
     var context = {};
     res.render('employee', context);
 });
 
-app.get('/add-employee', function(req, res){
+App.get('/add-employee', function(req, res){
     var context = {};
 
     var confirmation_msg = "No employee added, use POST.";
@@ -111,7 +119,7 @@ app.get('/add-employee', function(req, res){
 });
 
 
-app.get('/add-group', function(req, res){
+App.get('/add-group', function(req, res){
     var context = {};
 
     var confirmation_msg = "No group added, use POST.";
@@ -121,7 +129,7 @@ app.get('/add-group', function(req, res){
 
 
 // // Request Handler to Add Employee
-app.post('/add-employee', function (req, res) {
+App.post('/add-employee', function (req, res) {
 
     var context = {};
 
@@ -147,7 +155,7 @@ app.post('/add-employee', function (req, res) {
 
 
 // // Request Handler to Add Group
-app.post('/add-group', function (req, res) {
+App.post('/add-group', function (req, res) {
 
     var context = {};
 
@@ -169,7 +177,7 @@ app.post('/add-group', function (req, res) {
 
 
 // // Request Handler to View Employees / Groups
-app.get('/view-employee', function(req, res){
+App.get('/view-employee', function(req, res){
 
     // Make query to "DB"
     db_response = getEmployee();
@@ -182,8 +190,8 @@ app.get('/view-employee', function(req, res){
 }); 
 
 
-// Testing Harness => Expand if time
-app.get('/employeetest', function(req, res, next){
+// Testing Harness => Needs to be updated with changes made to code
+App.get('/employeetest', function(req, res, next){
 
     	// test addEmployee()
     	// happy paths
@@ -265,7 +273,7 @@ app.get('/employeetest', function(req, res, next){
 });
  
 // // Default 404 Error -- From CS 290 lecture "Hello Express"
-app.use(function(req,res){
+App.use(function(req,res){
  res.type('text/plain');
  res.status(404);
  res.send('404 - Not Found');
@@ -275,7 +283,7 @@ app.use(function(req,res){
 
 
 // // Default 500 Error -- From CS 290 lecture "Hello Express"
-app.use(function(err, req, res, next){
+App.use(function(err, req, res, next){
  console.error(err.stack);
  res.type('plain/text');
  res.status(500);
@@ -284,6 +292,7 @@ app.use(function(err, req, res, next){
 });
 
 
-app.listen(app.get('port'), function(){
-  console.log('Express started on http://localhost:' + app.get('port') + '; press Ctrl-C to terminate.');
+App.listen(App.get('port'), function(){
+  console.log('Express started on http://localhost:' + App.get('port') + '; press Ctrl-C to terminate.');
 });
+

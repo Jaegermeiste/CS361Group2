@@ -344,7 +344,7 @@ App.post('/', function (req, res, next) {
 
     Login_GoHome(req, res);
 });
-
+/*
 App.use(function (req, res) {
     res.status = (404);
     res.render("404");
@@ -360,3 +360,4 @@ App.use(function (err, req, res, next) {
 var Server = App.listen(App.get("port"), function () {
     console.log("Express started on " + Server.address().address + ":" + Server.address().port);
 });
+*/

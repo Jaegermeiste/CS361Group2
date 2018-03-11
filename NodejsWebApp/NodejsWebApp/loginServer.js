@@ -58,12 +58,12 @@ var passwordEngine = SecurePassword({
 App.use(Helmet());
 
 // Standard Express/Handlebars boilerplate
-App.engine("handlebars", Handlebars.engine);
-App.set("view engine", "handlebars");
+//App.engine("handlebars", Handlebars.engine);
+//App.set("view engine", "handlebars");
 //App.set("port", 1337);
-App.use(BodyParser.urlencoded({ extended: true }));
-App.use(BodyParser.json());
-App.use(Express.static("public"));
+//App.use(BodyParser.urlencoded({ extended: true }));
+//App.use(BodyParser.json());
+//App.use(Express.static("public"));
 
 // This defines the session cookie
 App.use(Session({

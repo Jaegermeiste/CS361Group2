@@ -13,7 +13,7 @@ var App = Express();
 var mysql = require('mysql');
 var pool = mysql.pool;
 
-App.use(BodyParser.urlencoded({ extended: false }));
+App.use(BodyParser.urlencoded({ extended: true }));
 App.use(BodyParser.json());
 
 App.use(Express.static("public"));
@@ -31,10 +31,10 @@ module.exports.MySQL = mysql;
 module.exports.Pool = pool;
 
 // ANOMALIES 
-//app.use('/anomalies', require('./anomalies.js'));
-//app.use('/anomalies-employees', require('./anomalies-employees.js'));
-//app.use('/anomalies-types', require('./anomalies-types.js'));
-//app.use('/anomalies-groups', require('./anomalies-groups.js'));
+App.use('/anomalies', require('./anomalies.js'));
+App.use('/anomalies-employees', require('./anomalies-employees.js'));
+App.use('/anomalies-types', require('./anomalies-types.js'));
+App.use('/anomalies-groups', require('./anomalies-groups.js'));
 
 
 // LOGIN 

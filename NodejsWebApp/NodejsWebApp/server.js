@@ -313,8 +313,13 @@ App.get('/view-employee', function (req, res) {
 
 
 // Testing Harness => Needs to be updated with changes made to code
-App.get('/employeetest', function (req, res, next) {
-
+App.get('/unittest-employee', function (req, res, next) {
+    //If there is no session, go to the login page.
+    if ((!req.session) || (!req.session.user)) {
+        console.log("No active session. Redirect to login screen.");
+        res.redirect('/');
+        return;
+    }
     	// test addEmployee()
     	// happy paths
     	
@@ -393,6 +398,17 @@ App.get('/employeetest', function (req, res, next) {
 
    
 });
+
+App.get('/integrationtest-employee', function (req, res, next) {
+
+    //If there is no session, go to the login page.
+    if ((!req.session) || (!req.session.user)) {
+        console.log("No active session. Redirect to login screen.");
+        res.redirect('/');
+        return;
+    }
+	res.render('integrationtest-employee'); 
+}); 
 
 /*
 // // Default 404 Error -- From CS 290 lecture "Hello Express"

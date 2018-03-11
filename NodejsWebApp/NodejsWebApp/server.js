@@ -5,12 +5,13 @@
 // Set up port, express, body-parser, handlebars
 
 var port = process.env.PORT || 65351; // changing port so can be run on engr server
+// var port = process.argv[2]
 var express = require('express');
 var app = express();
 var handlebars = require('express-handlebars').create({defaultLayout:'main'});
 var bodyParser = require('body-parser');
-// var mysql = require('mysql');
-// var pool = mysql.pool;
+var mysql = require('mysql');
+var pool = mysql.pool;
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
@@ -20,6 +21,12 @@ app.use(express.static("public"));
 app.engine('handlebars', handlebars.engine);
 app.set('view engine', 'handlebars');
 app.set('port', port);
+
+app.use('/anomalies', require('./anomalies.js'));
+app.use('/anomalies-employees', require('./anomalies-employees.js'));
+app.use('/anomalies-types', require('./anomalies-types.js'));
+app.use('/anomalies-groups', require('./anomalies-groups.js'));
+
 
 // DB Simulators 
 
@@ -52,7 +59,7 @@ function addEmployee(first, last, group) {
 
 
 	// Log
-    console.log('Added employee ' + first + ' ' + last + ' to ' + group );
+    console.log('Added employee ' + first + ' ' + last + ' to ' + group);
 	var confirmation_msg = 'Succesfully Added Employee';  
 	return context;
 }
@@ -77,18 +84,41 @@ function addGroup(group) {
  	return context; 
 }
 
-// Request Handlers 
+// *** Request Handlers ***
 
-// // Request Handler for Main/Home Page 
+// Request Handler for Main/Home Page 
+app.get('/', function(req,res){
+    var context = {};
+    res.render('home', context);
+});
+
 app.get('/home', function(req,res){
-    res.render('home'); 
+    var context = {};	
+    res.render('home', context);
 });
 
 
-// // Request Handler for Main Employee Page
+// // Default GET Handlers for Main Employee Page
 app.get('/employee', function(req, res){
-    res.render('employee');
+    var context = {};
+    res.render('employee', context);
 });
+
+app.get('/add-employee', function(req, res){
+    var context = {};
+
+    var confirmation_msg = "No employee added, use POST.";
+    res.render('employee', context);
+});
+
+
+app.get('/add-group', function(req, res){
+    var context = {};
+
+    var confirmation_msg = "No group added, use POST.";
+    res.render('employee', context);
+});
+
 
 
 // // Request Handler to Add Employee
@@ -101,16 +131,16 @@ app.post('/add-employee', function (req, res) {
 
     first = req.body.first;
     last = req.body.last;
-    group = req.body.group;
+    group = req.body.group_selected;
 
     addEmployee(first, last, group);
 
     res.status(200);
 
     context.port = port;
-    context.confirmation_msg = 'Successfully Added Employee';
+    context.confirmation_msg = 'Successfully Added Employee ' + first + ' ' + last + ' to ' + group;
 
-    console.log('Added employee' + employee.firstName + ' ' + employee.lastName);
+    console.log('Added employee' + first + ' ' + last);
 
     res.render('employee', context);
 
@@ -240,6 +270,8 @@ app.use(function(req,res){
  res.type('text/plain');
  res.status(404);
  res.send('404 - Not Found');
+ res.render('404');
+
 });
 
 
@@ -249,6 +281,7 @@ app.use(function(err, req, res, next){
  res.type('plain/text');
  res.status(500);
  res.send('500 - Server Error');
+ res.render('500');
 });
 
 

@@ -1,7 +1,6 @@
 // server.js
 
 // Boilerplate code from Hello Node, Hello Express, Hello Handlebars, Using MySQL with Node & Form Handling CS 290 lectures 
-
 // Set up port, express, body-parser, handlebars
 
 var port = process.env.PORT || 65351; // changing port so can be run on engr server

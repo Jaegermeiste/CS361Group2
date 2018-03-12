@@ -5,6 +5,7 @@
 //   https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes
 //   https://developer.mozilla.org/en-US/docs/Web/JavaScript/References/Classes/extends 
 
+/*
 class Dashboard {
  
         constructor(){
@@ -21,7 +22,7 @@ class Dashboard {
 	
 	}
 }
-
+*/
 
 class EmployeeView {
 
@@ -92,10 +93,10 @@ class EmployeeView {
 }
 
 // Create Dashboard 
-var d = new Dashboard(); 
-d.buildDashboard(); 
+//var d = new Dashboard(); 
+//d.buildDashboard(); 
 
-// var e = new EmployeeView(); 
-// e.testGetEmployeeGroups();  
+var e = new EmployeeView(); 
+e.getEmployeeGroups();  
 
 

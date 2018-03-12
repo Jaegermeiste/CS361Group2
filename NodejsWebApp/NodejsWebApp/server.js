@@ -75,7 +75,7 @@ function addEmployee(first, last, group) {
 
 	// Log
     console.log('Added employee ' + first + ' ' + last + ' to ' + group);
-	var confirmation_msg = 'Succesfully Added Employee';  
+	context.confirmation_msg = 'Succesfully Added Employee';  
 	return context;
 }
 
@@ -337,7 +337,7 @@ App.get('/unittest-employee', function (req, res, next) {
 		console.log('Adding Employee: Empty; Group: Empty - Passed'); 
 	} 
 	else {
-		console.log('Adding Employee: Empty; Group: Empty - Failed'); 
+		console.log('Adding Employee: Empty; Group: Empty - Failed (expected)'); 
 	
 	}		  
     		
@@ -346,7 +346,7 @@ App.get('/unittest-employee', function (req, res, next) {
 		console.log('Adding Employee: 1234 1234; Group: 1234 - Passed');  
 	}
 	else {
-		console.log('Adding Employee: 1234 1234; Group: 1234 - Failed'); 
+		console.log('Adding Employee: 1234 1234; Group: 1234 - Failed (expected)'); 
 	} 
 
     	// test getEmployee() 
@@ -392,7 +392,7 @@ App.get('/unittest-employee', function (req, res, next) {
 			console.log('Adding Group: ' + groupName_sadPaths[group] + ' - Passed'); 
 		}
 		else {
-			console.log('Adding Group: ' + groupName_sadPaths[group]  + ' - Failed'); 
+			console.log('Adding Group: ' + groupName_sadPaths[group]  + ' - Failed (expected)'); 
 		}
 	}
 

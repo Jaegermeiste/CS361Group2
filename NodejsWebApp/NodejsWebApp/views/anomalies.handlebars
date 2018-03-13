@@ -4,6 +4,7 @@
 {{/each}}
 <select name="list" id="list" accesskey="target">
     <option value='none' selected>Group Anomalies By...</option>
+    <option value='/anomalies'>ID</option>
     <option value="/anomalies-employees">Employees</option>
     <option value="/anomalies-types">Types</option>
     <option value="/anomalies-groups">Groups</option>
@@ -20,9 +21,9 @@
         <th>Latitude</th>
         <th>Longitude</th>
     </thead>
-    <tbody> 
+    <tbody id="anomalyTableBody"> 
         {{#each view}}
-        <tr> 
+        <tr id="{{id}}" value="{{id}}"> 
             <td>{{id}}</td>
             <td>{{timestamp}}</td>
             <td>{{Employee}}</td>
@@ -35,3 +36,4 @@
         {{/each}} 
     </tbody>
 </table>
+<p>{{errorMsg}}</p>

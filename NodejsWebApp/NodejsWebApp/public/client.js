@@ -36,7 +36,8 @@ class EmployeeView {
 			// Ref: Adapted from Asynchronous Requests Lecture - CS 290
 			
 			var req = new XMLHttpRequest(); 
-			req.open('GET', 'http://flip3.engr.oregonstate.edu:65351/view-employee', true); 
+			//req.open('GET', 'http://flip3.engr.oregonstate.edu:65351/view-employee', true);
+            req.open('GET', 'http://localhost:1337/view-employee', true);
 			req.setRequestHeader('Content-Type', 'application/json'); 
 			req.addEventListener('load', function(){
 			

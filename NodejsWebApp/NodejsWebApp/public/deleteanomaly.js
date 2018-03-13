@@ -1,7 +1,7 @@
 function deleteAnomaly(id){
     $.ajax({
-        url: '/anomalies/' + id,
-        type: 'DELETE',
+        url: '/anomalies-delete?id=' + id,
+        type: 'GET',
         success: function(result){
             window.location.reload(true);
         }

@@ -12,44 +12,54 @@ var BodyParser = require('body-parser');
 var App = Express();
 
 var mysql = require('mysql');
-var pool = mysql.createPool({
+/*var pool = mysql.createPool({
  	connectionLimit: 10,
  	host: 'classmysql.engr.oregonstate.edu',
  	user: 'cs361_kvavlen',
  	password: '8534', 
  	database: 'cs361_kvavlen',
-});
-  
-module.exports.pool = pool; 
+});*/
 
+var pool = mysql.createPool({
+    connectionLimit: 10,
+    host: '127.0.0.1',
+    user: 'cs361_kvavlen',
+    password: '8534',
+    database: 'cs361_kvavlen',
+});
+
+App.engine('handlebars', Handlebars.engine);
+App.set('view engine', 'handlebars');
+App.set('port', port);
+  
 App.use(BodyParser.urlencoded({ extended: true }));
 App.use(BodyParser.json());
 
 App.use(Express.static("public"));
 
-App.engine('handlebars', Handlebars.engine);
-App.set('view engine', 'handlebars');
-App.set('port', port);
+
 
 // Exports
 module.exports.Express = Express;
 module.exports.Handlebars = Handlebars;
 module.exports.BodyParser = BodyParser;
 module.exports.App = App;
-//module.exports.MySQL = mysql;
-//module.exports.Pool = pool;
+module.exports.MySQL = mysql;
+module.exports.Pool = pool;
+
 
 // ANOMALIES 
-App.use('/anomalies', require('./anomalies.js'));
-App.use('/anomalies-employees', require('./anomalies-employees.js'));
-App.use('/anomalies-types', require('./anomalies-types.js'));
-App.use('/anomalies-groups', require('./anomalies-groups.js'));
+var Anomalies = require('./anomalies.js');
+//App.use('/anomalies-employees', require('./anomalies-employees.js'));
+//App.use('/anomalies-types', require('./anomalies-types.js'));
+//App.use('/anomalies-groups', require('./anomalies-groups.js'));
 
 
 // LOGIN 
 var Login = require('./loginServer.js');
 var Login_Page = Login.Login_Page;
 var Logout = Login.Logout_Page;
+var CheckSession = Login.CheckSession;
 
 // EMPLOYEES 
 // DB Handlers
@@ -65,7 +75,7 @@ function getEmployee(next) {
 // // Insert Functions 
 function addEmployee(first, last, group, next) {
     
-    var sql = "INSERT INTO employee_group (employeeId, groupId) values ((SELECT employeeId FROM employee WHERE firstName = ? AND lastName = ?), (SELECT groupId from `group` WHERE groupName = ?));";
+    var sql = "INSERT INTO employee_group (employeeId, groupId) values ((SELECT id AS `employeeId` FROM employees WHERE f_name = (?) AND l_name = (?)), (SELECT id AS `groupId` FROM `groups` WHERE name = (?)));";
     var vars = [first, last, group]; 
     pool.query(sql, vars, function (err, results) {
         if (err) {
@@ -83,12 +93,12 @@ function addEmployee(first, last, group, next) {
 
 function addGroup(group, next) {
     
-    var sql = "INSERT INTO `group` (`groupName`) VALUES (?)";
+    var sql = "INSERT INTO `groups` (`name`) VALUES (?)";
     var vars = [group]
     pool.query(sql, vars, function(err, results) {
         if (err) {
+            console.log(error);
             next(err);
-            console.log('There was an error in the DB INSERT statement'); 
             return;
         }
         var context = {};  
@@ -99,29 +109,11 @@ function addGroup(group, next) {
 }
 
 // *** Request Handlers ***
-
-// Request Handler for Main/Home Page 
-/*App.get('/', function(req,res){
-    var context = {};
-    res.render('home', context);
-});*/ // Login handles / for get and post
-
 App.get('/home', function(req,res, next){
     var context = {};
 
-    //If there is no session, go to the login page.
-    if ((!req.session) || (!req.session.user)) {
-        console.log("No active session. Redirect to login screen.");
-        res.redirect('/');
-        return;
-    }
-
-    // Handle Logout Request
-    if ((req.body['Logout']) || (req.query.Logout === "Logout")) {
-        Logout(req);
-        //Login_Page(req, res, "Logged out successfully.");
-        //res.setHeader("Message", "Logged out successfully.");
-        res.redirect('/?Message=Logged out successfully.');
+    // Ensure we are logged in
+    if (!CheckSession(req, res)) {
         return;
     }
 
@@ -133,17 +125,8 @@ App.get('/home', function(req,res, next){
 App.get('/employee', function(req, res, next){
     var context = {};
 
-    //If there is no session, go to the login page.
-    if ((!req.session) || (!req.session.user)) {
-        console.log("No active session. Redirect to login screen.");
-        res.redirect('/');
-        return;
-    }
-
-    // Handle Logout Request
-    if ((req.body['Logout']) || (req.query.Logout === "Logout")) {
-        Logout(req);
-        res.redirect('/?Message=Logged out successfully.');
+    // Ensure we are logged in
+    if (!CheckSession(req, res)) {
         return;
     }
 
@@ -153,17 +136,8 @@ App.get('/employee', function(req, res, next){
 App.get('/add-employee', function(req, res, next){
     var context = {};
 
-    //If there is no session, go to the login page.
-    if ((!req.session) || (!req.session.user)) {
-        console.log("No active session. Redirect to login screen.");
-        res.redirect('/');
-        return;
-    }
-
-    // Handle Logout Request
-    if ((req.body['Logout']) || (req.query.Logout === "Logout")) {
-        Logout(req);
-        res.redirect('/?Message=Logged out successfully.');
+    // Ensure we are logged in
+    if (!CheckSession(req, res)) {
         return;
     }
 
@@ -175,17 +149,8 @@ App.get('/add-employee', function(req, res, next){
 App.get('/add-group', function(req, res, next){
     var context = {};
 
-    //If there is no session, go to the login page.
-    if ((!req.session) || (!req.session.user)) {
-        console.log("No active session. Redirect to login screen.");
-        res.redirect('/');
-        return;
-    }
-
-    // Handle Logout Request
-    if ((req.body['Logout']) || (req.query.Logout === "Logout")) {
-        Logout(req);
-        res.redirect('/?Message=Logged out successfully.');
+    // Ensure we are logged in
+    if (!CheckSession(req, res)) {
         return;
     }
 
@@ -200,19 +165,8 @@ App.post('/add-employee', function (req, res, next) {
 
     var context = {};
 
-    //If there is no session, go to the login page.
-    if ((!req.session) || (!req.session.user)) {
-        console.log("No active session. Redirect to login screen.");
-        res.redirect('/');
-        return;
-    }
-
-    // Handle Logout Request
-    if ((req.body['Logout']) || (req.query.Logout === "Logout")) {
-        Logout(req);
-        //Login_Page(req, res, "Logged out successfully.");
-        //res.setHeader("Message", "Logged out successfully.");
-        res.redirect('/?Message=Logged out successfully.');
+    // Ensure we are logged in
+    if (!CheckSession(req, res)) {
         return;
     }
 
@@ -239,17 +193,8 @@ App.post('/add-group', function (req, res, next) {
 
     var context = {};
 
-    //If there is no session, go to the login page.
-    if ((!req.session) || (!req.session.user)) {
-        console.log("No active session. Redirect to login screen.");
-        res.redirect('/');
-        return;
-    }
-
-    // Handle Logout Request
-    if ((req.body['Logout']) || (req.query.Logout === "Logout")) {
-        Logout(req);
-        res.redirect('/?Message=Logged out successfully.');
+    // Ensure we are logged in
+    if (!CheckSession(req, res)) {
         return;
     }
 
@@ -271,25 +216,16 @@ App.post('/add-group', function (req, res, next) {
 // // Request Handler to View Employees / Groups
 App.get('/view-employee', function (req, res, next) {
 
-    //If there is no session, go to the login page.
-    if ((!req.session) || (!req.session.user)) {
-        console.log("No active session. Redirect to login screen.");
-        res.redirect('/');
+    // Ensure we are logged in
+    if (!CheckSession(req, res)) {
         return;
     }
 
-    // Handle Logout Request
-    if ((req.body['Logout']) || (req.query.Logout === "Logout")) {
-        Logout(req);
-        //Login_Page(req, res, "Logged out successfully.");
-        //res.setHeader("Message", "Logged out successfully.");
-        res.redirect('/?Message=Logged out successfully.');
-        return;
-    }
-
-    var sql = "SELECT group.groupName, employee.firstName, employee.lastName FROM `employee` INNER JOIN `employee_group` ON employee_group.employeeId = employee.employeeId INNER JOIN `group` ON employee_group.groupId = group.groupId ORDER BY group.groupName;";
+    console.log("Getting employee list.");
+    var sql = "SELECT groups.name AS `groupName`, employees.f_name AS `firstName`, employees.l_name AS `lastName` FROM `employees` INNER JOIN `employee_group` ON employee_group.employeeId = employees.id INNER JOIN `groups` ON employee_group.groupId = groups.id ORDER BY groups.name;";
     pool.query(sql, function (err, rows, fields) {
         if (err) {
+            console.log(err);
             next(err);
             return;
         }
@@ -395,50 +331,17 @@ App.get('/unittest-employee', function (req, res, next) {
 
 App.get('/integrationtest-employee', function (req, res, next) {
 
-    //If there is no session, go to the login page.
-    if ((!req.session) || (!req.session.user)) {
-        console.log("No active session. Redirect to login screen.");
-        res.redirect('/');
+    // Ensure we are logged in
+    if (!CheckSession(req, res)) {
         return;
     }
+
 	res.render('integrationtest-employee'); 
 }); 
 
-/*
-// // Default 404 Error -- From CS 290 lecture "Hello Express"
-App.use(function(req,res){
- res.type('text/plain');
- res.status(404);
- res.send('404 - Not Found');
- res.render('404');
-
-});
-
-
-// // Default 500 Error -- From CS 290 lecture "Hello Express"
-App.use(function(err, req, res, next){
- console.error(err.stack);
- res.type('plain/text');
- res.status(500);
- res.send('500 - Server Error');
- res.render('500');
-});
-*/
-
 App.use(function (req, res) {
-    //If there is no session, go to the login page.
-    if ((!req.session) || (!req.session.user)) {
-        console.log("No active session. Redirect to login screen.");
-        res.redirect('/');
-        return;
-    }
-
-    // Handle Logout Request
-    if ((req.body['Logout']) || (req.query.Logout === "Logout")) {
-        Logout(req);
-        //Login_Page(req, res, "Logged out successfully.");
-        //res.setHeader("Message", "Logged out successfully.");
-        res.redirect('/?Message=Logged out successfully.');
+    // Ensure we are logged in
+    if (!CheckSession(req, res)) {
         return;
     }
 
@@ -447,19 +350,8 @@ App.use(function (req, res) {
 });
 
 App.use(function (err, req, res, next) {
-    //If there is no session, go to the login page.
-    if ((!req.session) || (!req.session.user)) {
-        console.log("No active session. Redirect to login screen.");
-        res.redirect('/');
-        return;
-    }
-
-    // Handle Logout Request
-    if ((req.body['Logout']) || (req.query.Logout === "Logout")) {
-        Logout(req);
-        //Login_Page(req, res, "Logged out successfully.");
-        //res.setHeader("Message", "Logged out successfully.");
-        res.redirect('/?Message=Logged out successfully.');
+    // Ensure we are logged in
+    if (!CheckSession(req, res)) {
         return;
     }
 

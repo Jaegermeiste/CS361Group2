@@ -14,16 +14,10 @@ const MIN_PASSWORD_LENGTH = 8;
 const MAX_PASSWORD_LENGTH = 64;
 
 //#include
-
-//var Express = require("express");
-//var Handlebars = require("express-handlebars").create({ defaultLayout: "main" });
-//var BodyParser = require("body-parser");
-/*var MySQL = require("./dbcon.js");*/
 var Crypto = require('crypto');
 var SecurePassword = require('secure-password');
 var Session = require('express-session');
 var Helmet = require('helmet');
-//var App = Express();
 
 // Exports
 module.exports.Crypto = Crypto;
@@ -37,6 +31,31 @@ module.exports.Login_Page = function (req, res, message, next) {
 module.exports.Logout_Page = function (req, res, next) {
     Login_Logout(req, res, next);
     return;
+};
+module.exports.CheckSession = function (req, res, next) {
+    return CheckSession(req, res, false);
+};
+
+function CheckSession(req, res, noredirect) {
+    //If there is no session, go to the login page.
+    if ((!req.session) || (!req.session.user)) {
+        console.log("No active session. Redirect to login screen.");
+        if (!noredirect) {
+            res.redirect('/');
+        }
+        return false;
+    }
+
+    // Handle Logout Request
+    if ((req.body['Logout']) || (req.query.Logout === "Logout")) {
+        Login_Logout(req);
+        if (!noredirect) {
+            res.redirect('/?Message=Logged out successfully.');
+        }
+        return false;
+    }
+
+    return true;
 };
 
 var Server = require('./server.js'); 
@@ -209,7 +228,7 @@ function Login_GoHome(req, res, next) {
 }
 
 // Unit Test harness
-App.get('/logintest', function (req, res, next) {
+App.get('/unittest-login', function (req, res, next) {
     var context = {};
     context.layout = "loginMain";
     context.row = [];
@@ -304,6 +323,14 @@ App.get('/logintest', function (req, res, next) {
         context.row.push({ "name": "30 Day Session Cookie", "status": "Passed" });
     } else {
         context.row.push({ "name": "30 Day Session Cookie", "status": "Failed" });
+    }
+
+    // Login test
+    req.session.user = "test";              // Login
+    if (CheckSession(req, res, true)) {
+        context.row.push({ "name": "Login", "status": "Passed" });
+    } else {
+        context.row.push({ "name": "Login", "status": "Failed" });
     }
 
     // Logout test
@@ -618,20 +645,3 @@ App.post('/', function (req, res, next) {
 
     Login_GoHome(req, res);
 });
-/*
-App.use(function (req, res) {
-    res.status = (404);
-    res.render("404");
-});
-
-App.use(function (err, req, res, next) {
-    console.error(err.stack);
-    res.type("plain/text");
-    res.status(500);
-    res.render("500");
-});
-
-var Server = App.listen(App.get("port"), function () {
-    console.log("Express started on " + Server.address().address + ":" + Server.address().port);
-});
-*/

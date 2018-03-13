@@ -12,21 +12,23 @@ var BodyParser = require('body-parser');
 var App = Express();
 
 var mysql = require('mysql');
-/*var pool = mysql.createPool({
+// ENGR MySQL
+var pool = mysql.createPool({
  	connectionLimit: 10,
  	host: 'classmysql.engr.oregonstate.edu',
  	user: 'cs361_kvavlen',
  	password: '8534', 
  	database: 'cs361_kvavlen',
-});*/
+});
 
-var pool = mysql.createPool({
+// Local MySQL
+/*var pool = mysql.createPool({
     connectionLimit: 10,
     host: '127.0.0.1',
     user: 'cs361_kvavlen',
     password: '8534',
     database: 'cs361_kvavlen',
-});
+});*/
 
 App.engine('handlebars', Handlebars.engine);
 App.set('view engine', 'handlebars');

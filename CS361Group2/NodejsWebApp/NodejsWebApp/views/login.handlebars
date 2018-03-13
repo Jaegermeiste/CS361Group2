@@ -1,0 +1,14 @@
+﻿<!-- CS 361 - Software Engineering I - Group 2 -->
+<form action="/" method="post">
+    <label>Username:</label>
+    <input id="username" type="text" name="username" required>
+    <br />
+    <label>Password:</label>
+    <input id="password" pattern="{{pattern}}" maxlength="{{maxPwLength}}" title="{{minPwLength}} to {{maxPwLength}} characters" type="password" name="password" required>
+    <br />
+    <label hidden>Stay Logged in:</label>
+    <input type="checkbox" name="rememberMe" value="true" checked="checked" hidden>
+    <br />
+    <input type="submit" name="Login" value="Login">
+    <p>{{message}}</p>
+</form>

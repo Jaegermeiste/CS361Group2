@@ -1,0 +1,17 @@
+{
+    "name": "secure-app",
+    "version": "1.0.0",
+    "description": "OSU CS 361 Group 2 Final Project",
+    "main": "server.js",
+    "author": "OSU",
+    "license": "ISC",
+    "dependencies": {
+        "body-parser": "^1.18.2",
+        "express": "^4.16.2",
+        "express-handlebars": "^3.0.0",
+        "express-session": "^1.15.6",
+        "helmet": "^3.12.0",
+        "secure-password": "^3.0.0",
+        "mysql": "^2.8.0"
+    }
+}

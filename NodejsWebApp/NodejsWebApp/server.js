@@ -10,8 +10,17 @@ var Express = require('express');
 var Handlebars = require('express-handlebars').create({ defaultLayout: "main" });
 var BodyParser = require('body-parser');
 var App = Express();
+
 var mysql = require('mysql');
-var pool = mysql.pool;
+var pool = mysql.createPool({
+ 	connectionLimit: 10,
+ 	host: 'classmysql.engr.oregonstate.edu',
+ 	user: 'cs361_kvavlen',
+ 	password: '8534', 
+ 	database: 'cs361_kvavlen',
+});
+  
+module.exports.pool = pool; 
 
 App.use(BodyParser.urlencoded({ extended: true }));
 App.use(BodyParser.json());
@@ -27,8 +36,8 @@ module.exports.Express = Express;
 module.exports.Handlebars = Handlebars;
 module.exports.BodyParser = BodyParser;
 module.exports.App = App;
-module.exports.MySQL = mysql;
-module.exports.Pool = pool;
+//module.exports.MySQL = mysql;
+//module.exports.Pool = pool;
 
 // ANOMALIES 
 App.use('/anomalies', require('./anomalies.js'));
@@ -43,60 +52,50 @@ var Login_Page = Login.Login_Page;
 var Logout = Login.Logout_Page;
 
 // EMPLOYEES 
-// DB Simulators 
+// DB Handlers
+// Reference: Using MySQL with Node Lecture, CS 290 
 
 // // Select Functions
-function getEmployee() {
-        var select_stmt = "SELECT groupName, groupId, firstName, lastName FROM employeeGroup ORDER BY groupName";
+function getEmployee(next) {
+    
 
-    // Reference: Using MySQL with Node Lecture - CS 290 re: format of DB response
-	var select_response = JSON.stringify([{"groupName": "Group2", "groupId": "2", "lastName": "Kvavle", "firstName": "Natasha"}, 
-						{"groupName": "TheLesserGroup", "groupId": "3", "lastName":"Foo", "firstName":"Bar"}]);  
-	return select_response; 
 }
 
 
 // // Insert Functions 
-function addEmployee(first, last, group) {
+function addEmployee(first, last, group, next) {
+    
+    var sql = "INSERT INTO employee_group (employeeId, groupId) values ((SELECT employeeId FROM employee WHERE firstName = ? AND lastName = ?), (SELECT groupId from `group` WHERE groupName = ?));";
+    var vars = [first, last, group]; 
+    pool.query(sql, vars, function (err, results) {
+        if (err) {
+            next(err);
+            return;
+        } 
 
-	var context = {};
-
-	// Create query
-	var add_query = "INSERT INTO employees(first, last, groupID) VALUES (?, ?, ?)";
-
-	// Handle in db -- de-comment when db is live
-	// pool.query(add_query, [first, last, group], function (err, result) {
-
- //        if (err) {
- //            next(err);
- //            return;
- //        });
-
-
-	// Log
-    console.log('Added employee ' + first + ' ' + last + ' to ' + group);
-	var confirmation_msg = 'Succesfully Added Employee';  
-	return context;
+	var context = {}; 
+        console.log('Added employee ' + first + ' ' + last + ' to ' + group);
+        context.confirmation_msg = 'Succesfully Added Employee';
+        console.log('confirmation sent: ' + context.confirmation_msg); 	
+        return context;
+    })	
 }
 
-function addGroup(group) {
-
-	// create query 
-	var add_query = "INSERT INTO group(groupName) VALUES (?)";
-
-	// Handle in db -- de-comment when db is live
-	// pool.query(add_query, [group], function (err, result) {
-
- //        if (err) {
- //            next(err);
- //            return;
- //        });
-
-
-	// Log
-	var context = {};
-	context.confirmation_msg = 'Successfully Added Group'; 
- 	return context; 
+function addGroup(group, next) {
+    
+    var sql = "INSERT INTO `group` (`groupName`) VALUES (?)";
+    var vars = [group]
+    pool.query(sql, vars, function(err, results) {
+        if (err) {
+            next(err);
+            console.log('There was an error in the DB INSERT statement'); 
+            return;
+        }
+        var context = {};  
+        console.log('Added group ' + group);
+        context.confirmation_msg = 'Succesfully Added Group';
+	return context; 
+    })
 }
 
 // *** Request Handlers ***
@@ -107,7 +106,7 @@ function addGroup(group) {
     res.render('home', context);
 });*/ // Login handles / for get and post
 
-App.get('/home', function(req,res){
+App.get('/home', function(req,res, next){
     var context = {};
 
     //If there is no session, go to the login page.
@@ -131,7 +130,7 @@ App.get('/home', function(req,res){
 
 
 // // Default GET Handlers for Main Employee Page
-App.get('/employee', function(req, res){
+App.get('/employee', function(req, res, next){
     var context = {};
 
     //If there is no session, go to the login page.
@@ -144,8 +143,6 @@ App.get('/employee', function(req, res){
     // Handle Logout Request
     if ((req.body['Logout']) || (req.query.Logout === "Logout")) {
         Logout(req);
-        //Login_Page(req, res, "Logged out successfully.");
-        //res.setHeader("Message", "Logged out successfully.");
         res.redirect('/?Message=Logged out successfully.');
         return;
     }
@@ -153,7 +150,7 @@ App.get('/employee', function(req, res){
     res.render('employee', context);
 });
 
-App.get('/add-employee', function(req, res){
+App.get('/add-employee', function(req, res, next){
     var context = {};
 
     //If there is no session, go to the login page.
@@ -166,8 +163,6 @@ App.get('/add-employee', function(req, res){
     // Handle Logout Request
     if ((req.body['Logout']) || (req.query.Logout === "Logout")) {
         Logout(req);
-        //Login_Page(req, res, "Logged out successfully.");
-        //res.setHeader("Message", "Logged out successfully.");
         res.redirect('/?Message=Logged out successfully.');
         return;
     }
@@ -176,8 +171,8 @@ App.get('/add-employee', function(req, res){
     res.render('employee', context);
 });
 
-
-App.get('/add-group', function(req, res){
+// GET 
+App.get('/add-group', function(req, res, next){
     var context = {};
 
     //If there is no session, go to the login page.
@@ -190,8 +185,6 @@ App.get('/add-group', function(req, res){
     // Handle Logout Request
     if ((req.body['Logout']) || (req.query.Logout === "Logout")) {
         Logout(req);
-        //Login_Page(req, res, "Logged out successfully.");
-        //res.setHeader("Message", "Logged out successfully.");
         res.redirect('/?Message=Logged out successfully.');
         return;
     }
@@ -203,7 +196,7 @@ App.get('/add-group', function(req, res){
 
 
 // // Request Handler to Add Employee
-App.post('/add-employee', function (req, res) {
+App.post('/add-employee', function (req, res, next) {
 
     var context = {};
 
@@ -223,29 +216,26 @@ App.post('/add-employee', function (req, res) {
         return;
     }
 
-    // This could be (and prob should be) it's own function so we can easily do a unit test
-    // Below code is meant to operate with a live SQL DB. Non-functional currently
+    // Grab first name, last name, and group name from body 	
+    var first = req.body.first;
+    var last = req.body.last;
+    var group = req.body.group_selected;
 
-    first = req.body.first;
-    last = req.body.last;
-    group = req.body.group_selected;
+    console.log('Attempting add of ' + first + ' ' + last + ' into group ' + group);  
+    // Insert into DB and save result
+    addEmployee(first, last, group, next);
 
-    addEmployee(first, last, group);
-
-    res.status(200);
-
-    context.port = port;
-    context.confirmation_msg = 'Successfully Added Employee ' + first + ' ' + last + ' to ' + group;
-
+    // Successful if got to this point, save confirmation msg
+    context.confirmation_msg = 'Succesfully Added Employee ' + first + ' ' + last + ' to ' + group;  	
     console.log('Added employee' + first + ' ' + last);
-
+    
+    // Rendering confirmation msg on employee.handlebars 
     res.render('employee', context);
-
 });
 
 
 // // Request Handler to Add Group
-App.post('/add-group', function (req, res) {
+App.post('/add-group', function (req, res, next) {
 
     var context = {};
 
@@ -259,31 +249,27 @@ App.post('/add-group', function (req, res) {
     // Handle Logout Request
     if ((req.body['Logout']) || (req.query.Logout === "Logout")) {
         Logout(req);
-        //Login_Page(req, res, "Logged out successfully.");
-        //res.setHeader("Message", "Logged out successfully.");
         res.redirect('/?Message=Logged out successfully.');
         return;
     }
 
-    // This should be a function for unit test purposes
-    // Below code is meant to operate with a live SQL DB. Non-functional currently
-
-    groupName = req.body.group_name;
-
-    addGroup(groupName);
-
-    res.status(200);
-
-    context.port = port;
+    var groupName = req.body.group_name; 
+     
+    // Insert group via SQL INSERT statement 	
+    addGroup(groupName, next);
+    
+    // If made it here, successful
     context.confirmation_msg = 'Successfully Added Group ' + groupName;
- 
+    console.log('Added group ' + groupName); 
+
+    // Render confirmation msg on employee.handlebars 			
     res.render('employee', context);
 
 });
 
 
 // // Request Handler to View Employees / Groups
-App.get('/view-employee', function (req, res) {
+App.get('/view-employee', function (req, res, next) {
 
     //If there is no session, go to the login page.
     if ((!req.session) || (!req.session.user)) {
@@ -301,14 +287,22 @@ App.get('/view-employee', function (req, res) {
         return;
     }
 
-    // Make query to "DB"
-    db_response = getEmployee();
+    var sql = "SELECT group.groupName, employee.firstName, employee.lastName FROM `employee` INNER JOIN `employee_group` ON employee_group.employeeId = employee.employeeId INNER JOIN `group` ON employee_group.groupId = group.groupId ORDER BY group.groupName;";
+    pool.query(sql, function (err, rows, fields) {
+        if (err) {
+            next(err);
+            return;
+        }
 
-    // Log request 
-    console.log("Sending the following response from DB: " + db_response);
+        var db_result = rows;
+        console.log('getEmployee() returning: ' + db_result);
 
-    // Return response to the calling client-side function 
-    res.send(db_response);
+        // Make query to "DB"
+        // Return response to the calling client-side function 
+        res.send(JSON.stringify(db_result));
+    })
+
+
 }); 
 
 

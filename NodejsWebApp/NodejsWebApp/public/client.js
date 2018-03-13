@@ -36,14 +36,15 @@ class EmployeeView {
 			// Ref: Adapted from Asynchronous Requests Lecture - CS 290
 			
 			var req = new XMLHttpRequest(); 
-			req.open('GET', 'http://flip1.engr.oregonstate.edu:65351/view-employee', true); 
+			req.open('GET', 'http://flip3.engr.oregonstate.edu:65351/view-employee', true); 
 			req.setRequestHeader('Content-Type', 'application/json'); 
 			req.addEventListener('load', function(){
 			
 				console.log('Requesting information from DB..'); 
 				if (req.status >= 200 && req.status < 400){
-					var json_response = JSON.parse(req.response); 
-					console.log(json_response); 	
+					var json_response = JSON.parse(req.response);
+					console.log(json_response); 
+				
 					 
 		       		        //for each row of json response,
                   			//      create td and tr elements to create table, assuming handlebars deals with header row

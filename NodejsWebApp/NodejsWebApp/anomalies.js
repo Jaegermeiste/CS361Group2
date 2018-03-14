@@ -20,10 +20,14 @@ const ANOMALIES_TYPES_QUERY = "SELECT anomalies.id, anomalies.timestamp, employe
 const ANOMALIES_GROUPS_QUERY = "SELECT anomalies.id, anomalies.timestamp, employees.f_name AS Employee, employee_groups.name AS Employee_Group, anomaly_types.name AS Type, anomalies.latitude, anomalies.longitude FROM anomalies INNER JOIN employees ON anomalies.employee_id = employees.id INNER JOIN employee_groups ON anomalies.group_id = employee_groups.id INNER JOIN anomaly_types ON anomalies.type_id = anomaly_types.id ORDER BY Employee_Group ASC";
 const ANOMALIES_EMPLOYEES_QUERY = "SELECT anomalies.id, anomalies.timestamp, employees.f_name AS Employee, employee_groups.name AS Employee_Group, anomaly_types.name AS Type, anomalies.latitude, anomalies.longitude FROM anomalies INNER JOIN employees ON anomalies.employee_id = employees.id INNER JOIN employee_groups ON anomalies.group_id = employee_groups.id INNER JOIN anomaly_types ON anomalies.type_id = anomaly_types.id ORDER BY employees.f_name ASC";
 
+var unittestanomaly = {};
+unittestanomaly.Success = false;
+unittestanomaly.Running = false;
+
 function getAnomalyView(res, SQLquery, context) {
     if (!Pool || !SQLquery) {
         res.render('anomalies', context);
-        return;
+        return false;
     }
 
     Pool.query(SQLquery, function (error, results, fields) {
@@ -35,10 +39,119 @@ function getAnomalyView(res, SQLquery, context) {
             //res.write(JSON.stringify(error));
             //res.end();
         }
-        context.view = results;
-        res.render('anomalies', context);
+
+        if (unittestanomaly.Running) {
+            unittestanomaly.Success = true;
+            res.redirect('/unittest-anomaly');
+            return;
+        } else {
+            context.view = results;
+            res.render('anomalies', context);
+        }
+
+        return true;
     });
 }
+
+var unittestanomaly = {};
+unittestanomaly.Success = false;
+unittestanomaly.Running = false;
+App.get('/unittest-anomaly', function (req, res, next) {
+    var context = {};
+    var testContext = {};
+    context.layout = "loginMain";
+    context.title = "Anomaly Unit Tests";
+    context.row = [];
+    var result = "";
+
+    if (unittestanomaly.Running === false) {
+        console.log("Anomaly Unit Test");
+        unittestanomaly.Success = false;
+        unittestanomaly.Running = true;
+    }
+
+    // Test ANOMALIES_DEFAULT_QUERY
+    if (unittestanomaly.DefaultTest === "Running") {
+        if (unittestanomaly.Success === true) {
+            unittestanomaly.Success = false;
+            unittestanomaly.DefaultTest = "Passed";
+        }
+        else {
+            unittestanomaly.Success = false;
+            unittestanomaly.DefaultTest = "Failed";
+        }
+    }
+    if (unittestanomaly.DefaultTest) {
+        context.row.push({ "name": "Test ANOMALIES_DEFAULT_QUERY", "status": unittestanomaly.DefaultTest });
+    } else {
+        unittestanomaly.DefaultTest = "Running";
+        getAnomalyView(res, ANOMALIES_DEFAULT_QUERY, testContext);
+        return;
+    }
+
+    // Test ANOMALIES_TYPES_QUERY
+    if (unittestanomaly.TypesTest === "Running") {
+        if (unittestanomaly.Success === true) {
+            unittestanomaly.Success = false;
+            unittestanomaly.TypesTest = "Passed";
+        }
+        else {
+            unittestanomaly.Success = false;
+            unittestanomaly.TypesTest = "Failed";
+        }
+    }
+    if (unittestanomaly.TypesTest) {
+        context.row.push({ "name": "Test ANOMALIES_TYPES_QUERY", "status": unittestanomaly.TypesTest });
+    } else {
+        unittestanomaly.TypesTest = "Running";
+        getAnomalyView(res, ANOMALIES_TYPES_QUERY, testContext);
+        return;
+    }
+
+    // Test ANOMALIES_GROUPS_QUERY
+    if (unittestanomaly.GroupsTest === "Running") {
+        if (unittestanomaly.Success === true) {
+            unittestanomaly.Success = false;
+            unittestanomaly.GroupsTest = "Passed";
+        }
+        else {
+            unittestanomaly.Success = false;
+            unittestanomaly.GroupsTest = "Failed";
+        }
+    }
+    if (unittestanomaly.GroupsTest) {
+        context.row.push({ "name": "Test ANOMALIES_GROUPS_QUERY", "status": unittestanomaly.GroupsTest });
+    } else {
+        unittestanomaly.GroupsTest = "Running";
+        getAnomalyView(res, ANOMALIES_GROUPS_QUERY, testContext);
+        return;
+    }
+
+    // Test ANOMALIES_EMPLOYEES_QUERY
+    if (unittestanomaly.EmployeesTest === "Running") {
+        if (unittestanomaly.Success === true) {
+            unittestanomaly.Success = false;
+            unittestanomaly.EmployeesTest = "Passed";
+        }
+        else {
+            unittestanomaly.Success = false;
+            unittestanomaly.EmployeesTest = "Failed";
+        }
+    }
+    if (unittestanomaly.EmployeesTest) {
+        context.row.push({ "name": "Test ANOMALIES_EMPLOYEES_QUERY", "status": unittestanomaly.EmployeesTest });
+    } else {
+        unittestanomaly.EmployeesTest = "Running";
+        getAnomalyView(res, ANOMALIES_EMPLOYEES_QUERY, testContext);
+        return;
+    }
+
+    console.log("Test complete");
+    unittestanomaly.Running = false;
+
+    res.render('loginTest', context);
+    return;
+});
 
 App.get('/anomalies', function (req, res) {
     // Ensure we are logged in

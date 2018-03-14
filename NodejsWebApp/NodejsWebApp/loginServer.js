@@ -76,14 +76,6 @@ var passwordEngine = SecurePassword({
 // Helmet protects us from getting hurt
 App.use(Helmet());
 
-// Standard Express/Handlebars boilerplate
-//App.engine("handlebars", Handlebars.engine);
-//App.set("view engine", "handlebars");
-//App.set("port", 1337);
-//App.use(BodyParser.urlencoded({ extended: true }));
-//App.use(BodyParser.json());
-//App.use(Express.static("public"));
-
 // This defines the session cookie
 App.use(Session({
     name: "sessionID",
@@ -231,6 +223,7 @@ function Login_GoHome(req, res, next) {
 App.get('/unittest-login', function (req, res, next) {
     var context = {};
     context.layout = "loginMain";
+    context.title = "Login Unit Tests";
     context.row = [];
     var result = "";
 
@@ -239,7 +232,7 @@ App.get('/unittest-login', function (req, res, next) {
     // Get Username admin
     result = Login_GetHashForUser(ADMIN_LOGIN);
     if (result.length > 0) {
-        context.row.push({ "name": "Get username 'admin", "status": "Passed" });
+        context.row.push({ "name": "Get username 'admin'", "status": "Passed" });
     } else {
         context.row.push({ "name": "Get username 'admin'", "status": "Failed" });
     }
@@ -271,7 +264,7 @@ App.get('/unittest-login', function (req, res, next) {
     // Get salt user
     result = Login_GetSaltForUser(USER_LOGIN);
     if (result.length > 0) {
-        context.row.push({ "name": "Get salt 'user", "status": "Passed" });
+        context.row.push({ "name": "Get salt 'user'", "status": "Passed" });
     } else {
         context.row.push({ "name": "Get salt 'user'", "status": "Failed" });
     }
@@ -279,7 +272,7 @@ App.get('/unittest-login', function (req, res, next) {
     // Get salt banana
     result = Login_GetSaltForUser("banana");
     if (result.length > 0) {
-        context.row.push({ "name": "No salt 'banana", "status": "Failed" });
+        context.row.push({ "name": "No salt 'banana'", "status": "Failed" });
     } else {
         context.row.push({ "name": "No salt 'banana'", "status": "Passed" });
     }
@@ -287,7 +280,7 @@ App.get('/unittest-login', function (req, res, next) {
     // Login user admin
     result = Login_Authenticate(ADMIN_LOGIN, ADMIN_PASSWORD);
     if (result) {
-        context.row.push({ "name": "Login_Page user 'admin", "status": "Passed" });
+        context.row.push({ "name": "Login_Page user 'admin'", "status": "Passed" });
     } else {
         context.row.push({ "name": "Login_Page user 'admin'", "status": "Failed" });
     }
@@ -295,7 +288,7 @@ App.get('/unittest-login', function (req, res, next) {
     // Login user user
     result = Login_Authenticate(USER_LOGIN, USER_PASSWORD);
     if (result) {
-        context.row.push({ "name": "Login_Page user 'user", "status": "Passed" });
+        context.row.push({ "name": "Login_Page user 'user'", "status": "Passed" });
     } else {
         context.row.push({ "name": "Login_Page user 'user'", "status": "Failed" });
     }
@@ -303,7 +296,7 @@ App.get('/unittest-login', function (req, res, next) {
     // Deny user banana
     result = Login_Authenticate("banana", "limeC0c0nut");
     if (result) {
-        context.row.push({ "name": "Deny user 'banana", "status": "Failed" });
+        context.row.push({ "name": "Deny user 'banana'", "status": "Failed" });
     } else {
         context.row.push({ "name": "Deny user 'banana'", "status": "Passed" });
     }
@@ -355,6 +348,7 @@ integrationtest.Running = false;
 App.get('/integrationtest-login', function (req, res, next) {
     var context = {};
     context.layout = "loginMain";
+    context.title = "Login Integration Tests";
     context.row = [];
     var result = "";
 

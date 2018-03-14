@@ -7,7 +7,7 @@ class integrationTest {
 
         // view-employee
         var req = new XMLHttpRequest();
-        req.open('GET', 'flip3.engr.oregonstate.edu:65351/view-employee', true);
+        req.open('GET', 'http://flip3.engr.oregonstate.edu:65351/view-employee', true);
         req.setRequestHeader('Content-Type', 'application/json');
         req.addEventListener('load',
             function () {
@@ -16,23 +16,23 @@ class integrationTest {
 		            var r, key;
 
 		            if (result.length > 0) {
-		        	    console.log('/view-employee: Result length > 0 - Passed');
+	                        console.log('/view-employee: Result length > 0 - Passed');
        			    }
        		 	    else {
-       		    	    console.log('/view-employee: Result length <= 0 - Failed');
+       		    	    	console.log('/view-employee: Result length <= 0 - Failed');
        		 	    }
 		            
 		            console.log(result); 
        		 	    for (r in result) {
-				        for (key in result[r]) {
-				            if (key == 'groupName' || key == 'firstName' || key == 'lastName' || key == 'groupId') {
-				                console.log('/view-employee: Result attribute is ' + key + ' - Passed');
-				            }
-				            else {
-				                console.log('/view-employee: Result attribute is ' + key + ' - Failed');
-				            }
-				        }
-            	   }
+		     	       for (key in result[r]) {
+				       if (key == 'groupName' || key == 'firstName' || key == 'lastName' || key == 'groupId') {
+				            console.log('/view-employee: Result attribute is ' + key + ' - Passed');
+				       }
+				       else {
+				            console.log('/view-employee: Result attribute is ' + key + ' - Failed');
+				       }
+			       }
+            	  	    }
 		        }
 		        else {
 			        console.log("ERROR: " + req.statusText); 
@@ -43,13 +43,13 @@ class integrationTest {
 
         // add-employee - happy path 
 	    var req2 = new XMLHttpRequest();
-	    req.open('GET', 'flip3.engr.oregonstate.edu:65351/view-employee', true);
+	    req2.open('GET', 'http://flip3.engr.oregonstate.edu:65351/view-employee', true);
 	    req2.setRequestHeader('Content-Type', 'application/json');
 	    var payload = {};
 	    payload.body = {}; 
-	    payload.body.first = 'Trevor'; 
-	    payload.body.last = 'Worthey'; 
-	    payload.body.group_selected = 'Group2'; 
+	    payload.body.first = 'George'; 
+	    payload.body.last = 'Costanza'; 
+	    payload.body.group_selected = 'Yellow'; 
 
 	    req2.addEventListener('load', function(){
 		    if (req2.status >= 200 && req2.status < 400) {
@@ -70,7 +70,7 @@ class integrationTest {
 
             // add-employee - sad path 
 	    var req3 = new XMLHttpRequest();
-	    req.open('GET', 'flip3.engr.oregonstate.edu:65351/view-employee', true);
+	    req3.open('GET', 'http://flip3.engr.oregonstate.edu:65351/view-employee', true);
 	    req3.setRequestHeader('Content-Type', 'application/json');
 	    var payload = {};
 	    payload.body = {};
@@ -99,7 +99,7 @@ class integrationTest {
 
             // add-employee - sad path 
 	    var req4 = new XMLHttpRequest();
-	    req.open('GET', 'flip3.engr.oregonstate.edu:65351/view-employee', true);
+	    req4.open('GET', 'http://flip3.engr.oregonstate.edu:65351/view-employee', true);
 	        req4.setRequestHeader('Content-Type', 'application/json');
 	        var payload = {};
 	        payload.body = {};

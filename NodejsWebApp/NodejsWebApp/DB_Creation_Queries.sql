@@ -8,6 +8,7 @@ DROP TABLE IF EXISTS `users`;
 DROP TABLE IF EXISTS `anomalies`;
 DROP TABLE IF EXISTS `anomaly_types`;
 DROP TABLE IF EXISTS `employee_group`;
+DROP TABLE IF EXISTS `employee_groups`;	-- Kill this with fire
 DROP TABLE IF EXISTS `groups`;
 DROP TABLE IF EXISTS `employees`;
 DROP TABLE IF EXISTS `discrepancy_types`;
@@ -194,7 +195,7 @@ ALTER TABLE `employees`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
--- AUTO_INCREMENT for table `employee_groups`
+-- AUTO_INCREMENT for table `groups`
 --
 ALTER TABLE `groups`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;

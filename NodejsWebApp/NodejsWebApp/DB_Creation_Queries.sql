@@ -24,9 +24,9 @@ DROP TABLE IF EXISTS `discrepancy_types`;
 
 CREATE TABLE `users` (
   `id` 				INT AUTO_INCREMENT UNIQUE NOT NULL PRIMARY KEY,
-  `timestamp` 		timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `username` 		VARCHAR(64) NOT NULL,
-  `password_hash` 	BLOB NOT NULL,
+  `timestamp` 			timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `username` 			VARCHAR(64) NOT NULL,
+  `password_hash` 		BLOB NOT NULL,
   `salt`			BLOB NOT NULL
 );
 
@@ -72,7 +72,7 @@ INSERT INTO `anomalies` (`id`, `timestamp`, `employee_id`, `group_id`, `type_id`
 
 CREATE TABLE `anomaly_types` (
   `id` int(11) NOT NULL,
-  `name` varchar(255) NOT NULL
+  `name` varchar(255) NOT NULL 
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --

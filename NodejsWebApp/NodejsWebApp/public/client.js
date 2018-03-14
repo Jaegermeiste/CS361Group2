@@ -7,18 +7,16 @@
 
 class Dashboard {
  
-        constructor(){
-        	this.eView = new EmployeeView();
-        }
+    constructor(){
+        this.eView = new EmployeeView();
+    }
 
-        buildDashboard() {
-                this.eView.getEmployeeGroups();
-        }
+    buildDashboard() {
+        this.eView.getEmployeeGroups();
+    }
 
 	testBuildDashboard() {
-		dash = this.buildDashboard();
-		 
-	
+		this.eView.testGetEmployeeGroups();
 	}
 }
 
@@ -34,9 +32,7 @@ class EmployeeView {
 			var json_response; 
 			
 			// Ref: Adapted from Asynchronous Requests Lecture - CS 290
-			
 			var req = new XMLHttpRequest(); 
-			//req.open('GET', 'http://flip3.engr.oregonstate.edu:65351/view-employee', true);
             req.open('GET', event.currentTarget.location.origin + '/view-employee', true);
 			req.setRequestHeader('Content-Type', 'application/json'); 
 			req.addEventListener('load', function(){
@@ -47,24 +43,24 @@ class EmployeeView {
 					console.log(json_response); 
 				
 					 
-		       		        //for each row of json response,
-                  			//      create td and tr elements to create table, assuming handlebars deals with header row
-                  			// Ref: DOM Nodes, DOM Navigation Lecture - CS 290
-                  			//
-                  			var table = document.createElement('tbody');
+		       		//for each row of json response,
+                  	//      create td and tr elements to create table, assuming handlebars deals with header row
+                  	// Ref: DOM Nodes, DOM Navigation Lecture - CS 290
+                  	//
+                  	var table = document.createElement('tbody');
 					  		 
 					for (var object in json_response) {
 						var tr = document.createElement('tr'); 
 						for (var key in json_response[object]) {					
-				             		var td1 = document.createElement('td');
-                         	 			td1.textContent = json_response[object][key];
-                         	 			tr.appendChild(td1);
+				             var td1 = document.createElement('td');
+                         	 td1.textContent = json_response[object][key];
+                         	 tr.appendChild(td1);
  						}
 			                       			
-                          			table.appendChild(tr);
+                        table.appendChild(tr);
 					}
 					
-				    	// Reference: https://stackoverflow.com/questions/2980830/javascript-getelementbyname-doesnt-work
+				    // Reference: https://stackoverflow.com/questions/2980830/javascript-getelementbyname-doesnt-work
 					document.getElementById('employee_table').appendChild(table)
 					
 				}	 
@@ -97,7 +93,8 @@ class EmployeeView {
 var d = new Dashboard(); 
 d.buildDashboard(); 
 
-// var e = new EmployeeView(); 
-// e.testGetEmployeeGroups();  
-
+/*
+var e = new Dashboard(); 
+e.testBuildDashboard();  
+*/
 

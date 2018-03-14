@@ -67,13 +67,6 @@ var CheckSession = Login.CheckSession;
 // DB Handlers
 // Reference: Using MySQL with Node Lecture, CS 290 
 
-// // Select Functions
-function getEmployee(next) {
-    
-
-}
-
-
 // // Insert Functions 
 function addEmployee(first, last, group, next) {
     
@@ -81,15 +74,9 @@ function addEmployee(first, last, group, next) {
     var vars = [first, last, group]; 
     pool.query(sql, vars, function (err, results) {
         if (err) {
-            next(err);
+        //    next(err);
             return;
         } 
-
-	var context = {}; 
-        console.log('Added employee ' + first + ' ' + last + ' to ' + group);
-        context.confirmation_msg = 'Succesfully Added Employee';
-        console.log('confirmation sent: ' + context.confirmation_msg); 	
-        return context;
     })	
 }
 
@@ -99,14 +86,10 @@ function addGroup(group, next) {
     var vars = [group]
     pool.query(sql, vars, function(err, results) {
         if (err) {
-            console.log(error);
-            next(err);
+            console.log(err);
+        //    next(err);
             return;
         }
-        var context = {};  
-        console.log('Added group ' + group);
-        context.confirmation_msg = 'Succesfully Added Group';
-	return context; 
     })
 }
 
@@ -244,49 +227,98 @@ App.get('/view-employee', function (req, res, next) {
 }); 
 
 
-// Testing Harness => Needs to be updated with changes made to code
+// Unit Tests - Employee 
+// Mimicking structure of Unit Tests - Login for consistency 
 App.get('/unittest-employee', function (req, res, next) {
-    //If there is no session, go to the login page.
-    if ((!req.session) || (!req.session.user)) {
-        console.log("No active session. Redirect to login screen.");
-        res.redirect('/');
-        return;
-    }
-    	// test addEmployee()
-    	// happy paths
-    	
-    	var result = addEmployee('Trevor', 'Worthey', 'Group2');  
-    	if (result.confirmation_msg == 'Successfully Added Employee') {
-		console.log('Adding Employee: Trevor Worthey; Group: Group2 - Passed'); 
-	}
-	else {
-		console.log('Adding Employee: Trevor Worthey; Group: Group2 - Failed');  
-	} 
 
-	// sad paths 
-	result = addEmployee('', '', ''); 
-	if (result.confirmation_msg != 'Successfully Added Employee') {
-		console.log('Adding Employee: Empty; Group: Empty - Passed'); 
-	} 
-	else {
-		console.log('Adding Employee: Empty; Group: Empty - Failed'); 
-	
-	}		  
-    		
-    	result = addEmployee(1234, 1234, 1234); 
-	if (result.confirmation_msg != 'Successfully Added Employee') {
-		console.log('Adding Employee: 1234 1234; Group: 1234 - Passed');  
-	}
-	else {
-		console.log('Adding Employee: 1234 1234; Group: 1234 - Failed'); 
-	} 
+    var context = {};
+    context.title = "Employee Unit Tests";
+    context.row = [];
 
-    	// test getEmployee() 
-    	// happy paths 
+    // test addEmployee()
+    // Happy Paths
     	
+    var result = addEmployee('Cody', 'Hannan', 'Red');
+    var sql = "SELECT groups.name AS `groupName`, employees.f_name AS `firstName`, employees.l_name AS `lastName` FROM `employees` INNER JOIN `employee_group` ON employee_group.employeeId = employees.id INNER JOIN `groups` ON employee_group.groupId = groups.id WHERE employees.f_name = 'Cody' AND employees.l_name = 'Hannan' AND groups.name = 'Red';";
+    pool.query(sql, function (err, rows, fields) {
+        if (err) {
+            console.log(err);
+            next(err);
+            return;
+        }
+
+        // Make sure addition to DB happened 
+        if (rows[0].groupName == 'Red' && rows[0].firstName == 'Cody' && rows[0].lastName == 'Hannan') {
+            context.row.push({"name": "addEmployee() - Happy Path - Adding known employee to known group"}, {"status": "Passed"});
+        }
+        else {
+            context.row.push({ "name": "addEmployee() - Happy Path - Adding known employee to known group" }, { "status": "Failed" });
+        }
+    })
+
+	// Sad Paths 
+	var result2 = addEmployee('', '', ''); 
+	var sql = "SELECT groups.name AS `groupName`, employees.f_name AS `firstName`, employees.l_name AS `lastName` FROM `employees` INNER JOIN `employee_group` ON employee_group.employeeId = employees.id INNER JOIN `groups` ON employee_group.groupId = groups.id WHERE employees.f_name = '' AND employees.l_name = '' AND groups.name = '';";
+	pool.query(sql, function (err, rows, fields) {
+	    if (err) {
+	        console.log(err);
+	        next(err);
+	        return;
+	    }
+	    console.log(rows); 
+	    // Make sure addition of value (not null) to DB did not happen 
+	    if (rows[0] == null) {
+	        context.row.push({ "name": "addEmployee() - Sad Path - Adding unknown employee to unknown group" }, { "status": "Passed" });
+	    }
+	    else {
+	        context.row.push({ "name": "addEmployee() - Sad Path - Adding unknown employee to unknown group" }, { "status": "Failed" });
+	    }
+	})
+
+	var result3 = addEmployee('Cody', 'Hannan', 'GROUP12345');
+	var sql = "SELECT groups.name AS `groupName`, employees.f_name AS `firstName`, employees.l_name AS `lastName` FROM `employees` INNER JOIN `employee_group` ON employee_group.employeeId = employees.id INNER JOIN `groups` ON employee_group.groupId = groups.id WHERE employees.f_name = 'Cody' AND employees.l_name = 'Hannan' AND groups.name = 'GROUP12345';";
+	pool.query(sql, function (err, rows, fields) {
+	    if (err) {
+	        console.log(err);
+	        next(err);
+	        return;
+	    }
+
+	    // Make sure addition ov value (not null) to DB did not happen 
+	    if (rows[0] == null) {
+	        context.row.push({ "name": "addEmployee() - Sad Path - Adding known employee to unknown group" }, { "status": "Passed" });
+	    }
+	    else {
+	        context.row.push({ "name": "addEmployee() - Sad Path - Adding known employee to unknown group" }, { "status": "Failed" });
+	    }
+	})
+
+
+	var result4 = addEmployee('Natasha', 'Kvavle', 'Yellow');
+
+	var sql = "SELECT groups.name AS `groupName`, employees.f_name AS `firstName`, employees.l_name AS `lastName` FROM `employees` INNER JOIN `employee_group` ON employee_group.employeeId = employees.id INNER JOIN `groups` ON employee_group.groupId = groups.id WHERE employees.f_name = 'Natasha' AND employees.l_name = 'Kvavle' AND groups.name = 'Yellow';";
+	pool.query(sql, function (err, rows, fields) {
+	    if (err) {
+	        console.log(err);
+	        next(err);
+	        return;
+	    }
+
+	    // Make sure addition to DB didn't happen 
+	    if (rows[0] == null) {
+	        context.row.push({ "name": "addEmployee() - Sad Path - Adding unknown employee to known group" }, { "status": "Passed" });
+	    }
+	    else {
+	        context.row.push({ "name": "addEmployee() - Sad Path - Adding unknown employee to known group" }, { "status": "Failed" });
+	    }
+	})
+    
+    // test getEmployee() 
+    
+/*
 	result = JSON.parse(getEmployee())
 	if (result.length > 0) {
-		console.log('Getting Employees: Result length > 0 - Passed');  
+		console.log('/view-employee: Result length > 0 - Passed');  
 	}
 	else {
 		console.log('Getting Employees: Result length <= 0 - Failed');  
@@ -301,44 +333,62 @@ App.get('/unittest-employee', function (req, res, next) {
 			}
 		}
 	}
+*/
 
-	// could implement more, but unless I hardcode that we expect certain employees, will always fail 
- 	
-    	// test addGroup() 
-    	groupName_happyPaths = [ 'group1', '1234', 'group2', 'supercalifragilisticexpialidocious' ]; 
-	groupName_sadPaths = [ '', null, 1234 ]; 
- 
-	for ( group in groupName_happyPaths ) { 
-		result = addGroup(groupName_happyPaths[group]); 
-		if (result.confirmation_msg == 'Successfully Added Group') {
-			console.log('Adding Group: ' + groupName_happyPaths[group] + ' - Passed'); 
-		}
-		else {
-			console.log('Adding Group: ' + groupName_happyPaths[group] + ' - Failed'); 
-		}	
-	}  
+   	// test addGroup() 
+    // Hapy paths 
+	addGroup('supercalifragilistic'); 
+	var sql = "SELECT name FROM `groups` WHERE name = 'supercalifragilistic';";  // This is not great practice, however it's not retrieving user input so less risk
+	pool.query(sql, function (err, rows, fields) {
+	    if (err) {
+	        console.log(err);
+	        next(err);
+	        return;
+	    }
 
-	for ( group in groupName_sadPaths ) { 
-		result = addGroup(groupName_sadPaths[group]); 
-		if (result.confirmation_msg != 'Successfully Added Group') {
-			console.log('Adding Group: ' + groupName_sadPaths[group] + ' - Passed'); 
-		}
-		else {
-			console.log('Adding Group: ' + groupName_sadPaths[group]  + ' - Failed'); 
-		}
-	}
+	    // Make sure addition to DB didn't happen 
+	    if (rows[0] == null) {
+	        context.row.push({ "name": "addGroup() - Happy Path - Adding valid group" }, { "status": "Passed" });
+	    }
+	    else {
+	        context.row.push({ "name": "addGroup() - Happy Path - Adding valid group" }, { "status": "Failed" });
+	    }
+	})
+	  
 
-   
+	// Sad path 
+	addGroup(''); 
+	var sql = "SELECT name FROM `groups` WHERE name = ''";
+	pool.query(sql, function (err, rows, fields) {
+	    if (err) {
+	        console.log(err);
+	        next(err);
+	        return;
+	    }
+
+	    // Make sure addition to DB didn't happen 
+	    if (rows[0] == null) {
+	        context.row.push({ "name": "addGroup() - Sad Path - Adding invalid group" }, { "status": "Passed" });
+	    }
+	    else {
+	        context.row.push({ "name": "addGroup() - Sad Path - Adding invalid group" }, { "status": "Failed" });
+	    }
+	})
+	
+
+	console.log("Test complete");
+	res.render('loginTest', context); //using same template for employeeTest as loginTest
+	return;
+
 });
 
 App.get('/integrationtest-employee', function (req, res, next) {
-
-    // Ensure we are logged in
-    if (!CheckSession(req, res)) {
-        return;
-    }
-
-	res.render('integrationtest-employee'); 
+    // Ensure we are logged in 
+    if (!CheckSession(req, res)) { 
+	return; 
+    }  	
+    // Tests are client side
+    res.render('integrationtest-employee'); 
 }); 
 
 App.use(function (req, res) {

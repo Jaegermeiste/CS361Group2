@@ -220,27 +220,53 @@ ALTER TABLE `employee_group`
   ADD CONSTRAINT `eg_gid_fk` FOREIGN KEY (`groupId`) REFERENCES `groups` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 COMMIT;
 
+
+--
+-- New Tables in HW # 7 
+--
+
+-- Create Lockdown Boundaries Table 
+-- https://dev.mysql.com/doc/refman/5.7/en/json.html
 CREATE TABLE `lockdown_boundaries` (
 	`id` int(11) NOT NULL AUTO_INCREMENT, 
 	`name` varchar(255) NOT NULL, 
-	`latitude` int(11), 
-	`longitude` int(11),
+	`geofence` varchar(255),
 	PRIMARY KEY (`id`)
- )ENGINE=InnoDB CHARSET=utf8;
+ )ENGINE=InnoDB;
 
+-- Create Features Disabled Table
 CREATE TABLE `features_disabled` (
 	`id` int(11) NOT NULL AUTO_INCREMENT, 
 	`name` varchar(255) NOT NULL, 
 	PRIMARY KEY (`id`)
  )ENGINE=InnoDB CHARSET=utf8;
 
+-- Create Rules Table
 CREATE TABLE `rules` (
     `id` int(11) NOT NULL AUTO_INCREMENT, 
-    `group_id` int(11) NOT NULL,
-    `lb_id` int(11) NOT NULL, 
-    `fd_id` int(11) NOT NULL, 
+    `group_id` int(11) DEFAULT NULL,
+    `lb_id` int(11) DEFAULT NULL, 
+    `fd_id` int(11) DEFAULT NULL, 
+	`rule_name` varchar(255) NOT NULL, 
     PRIMARY KEY (`id`), 
     FOREIGN KEY (`group_id`) REFERENCES `groups`(`id`), 
     FOREIGN KEY (`lb_id`) REFERENCES `lockdown_boundaries`(`id`), 
     FOREIGN KEY (`fd_id`) REFERENCES `features_disabled`(`id`)
  )ENGINE=InnoDB; 
+
+
+ -- Insert Features Disabled 
+ INSERT INTO `features_disabled` (`name`) VALUES ('Camera'); 
+ INSERT INTO `features_disabled` (`name`) VALUES ('Bluetooth'); 
+ INSERT INTO `features_disabled` (`name`) VALUES ('Wi-Fi'); 
+
+ -- Insert Lockdown Boundaries 
+ -- https://stackoverflow.com/questions/15965166/what-is-the-maximum-length-of-latitude-and-longitude
+ INSERT INTO `lockdown_boundaries` (`name`,`geofence`) VALUES ('East Wing', '{"latitude":"1.158303","longitude":"-75.343538"},{"latitude":"1.159783","longitude":"-75.343257"}, {"latitude":"1.158174","longitude":"-75.341733"}'); 
+
+ -- Insert Rules
+ INSERT INTO `rules` (`group_id`, `lb_id`, `fd_id`, `rule_name`) VALUES (
+    (SELECT `id` FROM `groups` WHERE groups.name = 'Yellow'), 
+	(SELECT `id` FROM `lockdown_boundaries` WHERE lockdown_boundaries.name = 'East Wing'), 
+	(SELECT `id` FROM `features_disabled` WHERE features_disabled.name = 'Camera'), 
+ 	 'Rule_1'); 

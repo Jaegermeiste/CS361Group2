@@ -167,7 +167,7 @@ App.post('/add-employee', function (req, res, next) {
     // Successful if got to this point, save confirmation msg
     context.confirmation_msg = 'Succesfully Added Employee ' + first + ' ' + last + ' to ' + group;  	
     console.log('Added employee' + first + ' ' + last);
-    
+   
     // Rendering confirmation msg on employee.handlebars 
     res.render('employee', context);
 });
@@ -371,7 +371,7 @@ App.get('/unittest-employee', function (req, res, next) {
 	        context.row.push({ "name": "addGroup() - Sad Path - Adding invalid group" }, { "status": "Passed" });
 	    }
 	    else {
-	        context.row.push({ "name": "addGroup() - Sad Path - Adding invalid group" }, { "status": "Failed" });
+	        context.row.push({ "name": "addGroup() - Sad Path - Adding invalid group" }, { "status": "Failed - Requires more stringent rules on adding empty groups" });
 	    }
 	})
 	

@@ -226,7 +226,7 @@ COMMIT;
 --
 
 -- Create Lockdown Boundaries Table 
--- https://dev.mysql.com/doc/refman/5.7/en/json.html
+-- Reference: https://dev.mysql.com/doc/refman/5.7/en/json.html
 CREATE TABLE `lockdown_boundaries` (
 	`id` int(11) NOT NULL AUTO_INCREMENT, 
 	`name` varchar(255) NOT NULL, 
@@ -261,7 +261,10 @@ CREATE TABLE `rules` (
  INSERT INTO `features_disabled` (`name`) VALUES ('Wi-Fi'); 
 
  -- Insert Lockdown Boundaries 
+ -- References:
+ -- https://dev.mysql.com/doc/refman/5.7/en/json.html
  -- https://stackoverflow.com/questions/15965166/what-is-the-maximum-length-of-latitude-and-longitude
+ -- https://developers.google.com/maps/documentation/geocoding/intro
  INSERT INTO `lockdown_boundaries` (`name`,`geofence`) VALUES ('East Wing', '{"latitude":"1.158303","longitude":"-75.343538"},{"latitude":"1.159783","longitude":"-75.343257"}, {"latitude":"1.158174","longitude":"-75.341733"}'); 
 
  -- Insert Rules

@@ -95,6 +95,20 @@ function addGroup(group, next) {
     return true; 	 
 }
 
+function addRule(rule_name, group_name, boundary_name, feature_to_disable) {
+
+    var sql = "INSERT INTO `rules` (`group_id`, `lb_id`, `fd_id`, `rule_name`) VALUES ((?), (SELECT `id` FROM `groups` WHERE groups.name = (?)), (SELECT `id` FROM `lockdown_boundaries` WHERE lockdown_boundaries.name = (?)), (SELECT `id` FROM `features_disabled` WHERE features_disabled.name = (?)));"
+    var vars = [rule_name, group_name, boundary_name, feature_to_disable];
+    pool.query(sql, vars, function (err, results) {
+        if (err) {
+            //    next(err);
+            return false;
+        }
+    })
+    return true;
+
+}
+
 // *** Request Handlers ***
 App.get('/home', function(req,res, next){
     var context = {};
@@ -118,6 +132,16 @@ App.get('/employee', function(req, res, next){
     }
 
     res.render('employee', context);
+});
+
+App.get('/rules', function(req, res, next) {
+    var context = {}; 
+    // Ensure we are logged in 
+    if (!CheckSession(req, res)){
+        return; 
+    }	  	
+
+    res.render('rules', context); 
 });
 
 App.get('/add-employee', function(req, res, next){
@@ -220,7 +244,6 @@ App.get('/view-employee', function (req, res, next) {
         var db_result = rows;
         console.log('getEmployee() returning: ' + db_result);
 
-        // Make query to "DB"
         // Return response to the calling client-side function 
         res.send(JSON.stringify(db_result));
     })
@@ -228,6 +251,134 @@ App.get('/view-employee', function (req, res, next) {
 
 }); 
 
+App.post('/add-rule', function (req, res, next) {
+    var context = {};
+
+    // Ensure we are logged in
+    if (!CheckSession(req, res)) {
+        return;
+    }
+
+    // Grab first name, last name, and group name from body 	
+    var rule_name = req.body.rule_name;
+    var group_name = req.body.group_name;
+    var boundary_name = req.body.boundary_name;
+    var feature_to_disable = req.body.feature_to_disable;
+
+    console.log('Attempting add of ' + first + ' ' + last + ' into group ' + group);
+    // Insert into DB and save result
+    if (addRule(rule_name, group_name, boundary_name, feature_to_disable) == true) {
+        // Successful if got to this point, save confirmation msg
+        context.confirmation_msg = 'Succesfully Added Rule' + rule_name;
+        console.log('Added rule' + rule_name);
+    }
+    // Rendering confirmation msg on employee.handlebars 
+    res.render('rules', context);
+}); 
+
+
+// The following rule - related GET endpoints are assuming we are going to use a dropdown box to populate form
+App.get('/view-rule', function (req, res, next) {
+    // Ensure we are logged in
+    if (!CheckSession(req, res)) {
+        return;
+    }
+
+    // Get rules to populate in table
+    console.log("Getting rule list.");
+    var sql = "SELECT r.rule_name AS `rule`, lb.name AS `lockdown boundary`, g.name AS `group`, fd.name AS `feature disbled` FROM `rules` r INNER JOIN `groups` g ON r.group_id = g.id INNER JOIN `features_disabled` fd ON r.fd_id = fd.id INNER JOIN `lockdown_boundaries`lb ON r.lb_id = lb.id ORDER BY rule_name;";
+    pool.query(sql, function (err, rows, fields) {
+        if (err) {
+            console.log(err);
+            next(err);
+            return;
+        }
+
+        var db_result = rows;
+        console.log('get-lockdown-boundaries endpoint - returning: ' + db_result);
+        res.send(JSON.stringify(db_result));
+    })
+});
+
+// The following rule - related GET endpoints are assuming we are going to use a dropdown box to populate form
+App.get('/view-group', function (req, res, next) {
+    // Ensure we are logged in
+    if (!CheckSession(req, res)) {
+        return;
+    }
+
+    // Get group list
+    console.log("Getting group list.");
+    var sql = "SELECT name FROM `groups` ORDER BY name;"
+    pool.query(sql, function (err, rows, fields) {
+        if (err) {
+            console.log(err);
+            next(err);
+            return;
+        }
+
+        var db_result = rows;
+        console.log('get-group endpoint - returning: ' + db_result);
+
+        var context = {};
+        context.groups = JSON.stringify(db_result); 
+        res.send(context);
+    })
+});
+
+App.get('/view-lockdown-boundary', function (req, res, next) {
+
+    // Ensure we are logged in
+    if (!CheckSession(req, res)) {
+        return;
+    }
+
+    // Get features disabled to populate in drop-down
+    console.log("Getting lockdown boundary list.");
+    var sql = "SELECT name FROM lockdown_boundaries ORDER BY name;";
+    pool.query(sql, function (err, rows, fields) {
+        if (err) {
+            console.log(err);
+            next(err);
+            return;
+        }
+
+        var db_result = rows;
+        console.log('get-lockdown-boundaries endpoint - returning: ' + db_result);
+        var context = {}
+        context.boundaries = JSON.stringify(db_result);
+
+        res.send(context);
+    })
+
+});
+
+App.get('/view-features-disabled', function (req, res, next) {
+
+    // Ensure we are logged in
+    if (!CheckSession(req, res)) {
+        return;
+    }
+
+    // Get features disabled to populate in drop-down
+    console.log("Getting feature list.");
+    var sql = "SELECT name FROM features_disabled ORDER BY name;";
+    pool.query(sql, function (err, rows, fields) {
+        if (err) {
+            console.log(err);
+            next(err);
+            return;
+        }
+
+        var db_result = rows;
+        console.log('get-features-disabled endpoint - returning: ' + db_result);
+
+        var context = {}
+        context.features = JSON.stringify(db_result);
+
+        res.send(context);
+    })
+});
 
 // Unit Tests - Employee 
 // Mimicking structure of Unit Tests - Login for consistency 

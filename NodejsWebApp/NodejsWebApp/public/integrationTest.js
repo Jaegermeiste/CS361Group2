@@ -105,6 +105,7 @@ class integrationTest {
 
         req4.addEventListener('load', function () {
             if (req4.status >= 200 && req4.status < 400) {
+		console.log('/add-group: OK status - Passed');   
                 if (document.getElementById('msg') != 'Successfully Added Group testgroup') {
                     console.log('/add-group: Happy Path - testgroup - Passed');
                 }
@@ -130,6 +131,7 @@ class integrationTest {
 
         req5.addEventListener('load', function () {
             if (req5.status >= 200 && req5.status < 400) {
+		console.log('/add-group: OK status - Passed'); 
                 if (document.getElementById('msg') != 'Successfully Added Group Yellow') {
                     console.log('/add-group: Sad Path - Yellow - Failed - Need more strict requirements on unique keys');
                 }

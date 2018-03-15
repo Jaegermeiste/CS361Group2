@@ -75,9 +75,10 @@ function addEmployee(first, last, group, next) {
     pool.query(sql, vars, function (err, results) {
         if (err) {
         //    next(err);
-            return;
+            return false;
         } 
     })	
+    return true; 
 }
 
 function addGroup(group, next) {
@@ -88,9 +89,10 @@ function addGroup(group, next) {
         if (err) {
             console.log(err);
         //    next(err);
-            return;
+            return false;
         }
     })
+    return true; 	 
 }
 
 // *** Request Handlers ***
@@ -162,12 +164,11 @@ App.post('/add-employee', function (req, res, next) {
 
     console.log('Attempting add of ' + first + ' ' + last + ' into group ' + group);  
     // Insert into DB and save result
-    addEmployee(first, last, group, next);
-
-    // Successful if got to this point, save confirmation msg
-    context.confirmation_msg = 'Succesfully Added Employee ' + first + ' ' + last + ' to ' + group;  	
-    console.log('Added employee' + first + ' ' + last);
-   
+    if ( addEmployee(first, last, group, next) == true ) {
+	// Successful if got to this point, save confirmation msg
+        context.confirmation_msg = 'Succesfully Added Employee ' + first + ' ' + last + ' to ' + group;  	
+        console.log('Added employee' + first + ' ' + last);
+    }   
     // Rendering confirmation msg on employee.handlebars 
     res.render('employee', context);
 });
@@ -186,12 +187,13 @@ App.post('/add-group', function (req, res, next) {
     var groupName = req.body.group_name; 
      
     // Insert group via SQL INSERT statement 	
-    addGroup(groupName, next);
-    
-    // If made it here, successful
-    context.confirmation_msg = 'Successfully Added Group ' + groupName;
-    console.log('Added group ' + groupName); 
-
+    if (addGroup(groupName, next) == true ) {
+   
+        // If made it here, successful
+        context.confirmation_msg = 'Successfully Added Group ' + groupName;
+        console.log('Added group ' + groupName); 
+    }
+	
     // Render confirmation msg on employee.handlebars 			
     res.render('employee', context);
 
@@ -248,7 +250,7 @@ App.get('/unittest-employee', function (req, res, next) {
         }
 
         // Make sure addition to DB happened 
-        if (rows[0].groupName == 'Red' && rows[0].firstName == 'Cody' && rows[0].lastName == 'Hannan') {
+        if (result == true && rows[0].groupName == 'Red' && rows[0].firstName == 'Cody' && rows[0].lastName == 'Hannan') {
             context.row.push({"name": "addEmployee() - Happy Path - Adding known employee to known group"}, {"status": "Passed"});
         }
         else {
@@ -267,7 +269,7 @@ App.get('/unittest-employee', function (req, res, next) {
 	    }
 	    console.log(rows); 
 	    // Make sure addition of value (not null) to DB did not happen 
-	    if (rows[0] == null) {
+	    if (result2 == false && rows[0] == null) {
 	        context.row.push({ "name": "addEmployee() - Sad Path - Adding unknown employee to unknown group" }, { "status": "Passed" });
 	    }
 	    else {
@@ -285,7 +287,7 @@ App.get('/unittest-employee', function (req, res, next) {
 	    }
 
 	    // Make sure addition ov value (not null) to DB did not happen 
-	    if (rows[0] == null) {
+	    if (result3 == false && rows[0] == null) {
 	        context.row.push({ "name": "addEmployee() - Sad Path - Adding known employee to unknown group" }, { "status": "Passed" });
 	    }
 	    else {
@@ -305,7 +307,7 @@ App.get('/unittest-employee', function (req, res, next) {
 	    }
 
 	    // Make sure addition to DB didn't happen 
-	    if (rows[0] == null) {
+	    if (result4 == false && rows[0] == null) {
 	        context.row.push({ "name": "addEmployee() - Sad Path - Adding unknown employee to known group" }, { "status": "Passed" });
 	    }
 	    else {
@@ -337,7 +339,7 @@ App.get('/unittest-employee', function (req, res, next) {
 
    	// test addGroup() 
     // Hapy paths 
-	addGroup('supercalifragilistic'); 
+	var result5 = addGroup('supercalifragilistic'); 
 	var sql = "SELECT name FROM `groups` WHERE name = 'supercalifragilistic';";  // This is not great practice, however it's not retrieving user input so less risk
 	pool.query(sql, function (err, rows, fields) {
 	    if (err) {
@@ -346,8 +348,8 @@ App.get('/unittest-employee', function (req, res, next) {
 	        return;
 	    }
 
-	    // Make sure addition to DB didn't happen 
-	    if (rows[0] == null) {
+	    // Make sure addition to db happened 
+	    if (result5 == true && rows[0].name == 'supercalifragilistic') {
 	        context.row.push({ "name": "addGroup() - Happy Path - Adding valid group" }, { "status": "Passed" });
 	    }
 	    else {
@@ -357,7 +359,7 @@ App.get('/unittest-employee', function (req, res, next) {
 	  
 
 	// Sad path 
-	addGroup(''); 
+	var result6 = addGroup(''); 
 	var sql = "SELECT name FROM `groups` WHERE name = ''";
 	pool.query(sql, function (err, rows, fields) {
 	    if (err) {
@@ -367,7 +369,7 @@ App.get('/unittest-employee', function (req, res, next) {
 	    }
 
 	    // Make sure addition to DB didn't happen 
-	    if (rows[0] == null) {
+	    if (result5 == false && rows[0] == null) {
 	        context.row.push({ "name": "addGroup() - Sad Path - Adding invalid group" }, { "status": "Passed" });
 	    }
 	    else {

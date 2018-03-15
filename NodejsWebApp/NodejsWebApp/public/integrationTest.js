@@ -3,6 +3,8 @@
 
 class integrationTest {
 
+    // Test employee-related endpoints
+    // Ensure that communication between client and server side is accurate 
     testEmployee() {
 
         // view-employee
@@ -12,27 +14,25 @@ class integrationTest {
         req.addEventListener('load',
             function () {
 		        if (req.status >= 200 && req.status < 400) {  
-		            var result = req.response;
+		            var result = JSON.parse(req.response);
 		            var r, key;
-
 		            if (result.length > 0) {
 	                        console.log('/view-employee: Result length > 0 - Passed');
        			    }
        		 	    else {
        		    	    	console.log('/view-employee: Result length <= 0 - Failed');
        		 	    }
-		            
-		            console.log(result); 
-       		 	    for (r in result) {
-		     	       for (key in result[r]) {
-				       if (key == 'groupName' || key == 'firstName' || key == 'lastName' || key == 'groupId') {
-				            console.log('/view-employee: Result attribute is ' + key + ' - Passed');
-				       }
-				       else {
-				            console.log('/view-employee: Result attribute is ' + key + ' - Failed');
-				       }
-			       }
-            	  	    }
+
+		            for (r in result) {
+                        for (key in result[r]) {
+		     	            if (key == 'groupName' || key == 'firstName' || key == 'lastName' || key == 'groupId') {
+				                console.log('/view-employee: Result attribute is ' + key + ' - Passed');
+				            }
+				            else {
+				                console.log('/view-employee: Result attribute is ' + key + ' - Failed');
+				            }
+			            }
+            	    }
 		        }
 		        else {
 			        console.log("ERROR: " + req.statusText); 
@@ -51,20 +51,19 @@ class integrationTest {
 	    payload.body.last = 'Costanza'; 
 	    payload.body.group_selected = 'Yellow'; 
 
-	    req2.addEventListener('load', function(){
-		    if (req2.status >= 200 && req2.status < 400) {
-			    var result = req2.response
-	            	    if (result.confirmation_msg == 'Successfully Added Employee') {
-	                	    console.log('/add-employee: Trevor Worthey; Group: Group2 - Passed');
-	            	    }
-	            	    else {
-	                	    console.log('/add-employee: Trevor Worthey; Group: Group2 - Failed');
-	            	    }
-	            }
-	            else {
-	            	    console.log("ERROR: " + req.statusText);
-
-	            }
+        req2.addEventListener('load', function(){
+            if (req2.status >= 200 && req2.status < 400) {
+                var result = req2.response
+                if (result.confirmation_msg == 'Succesfully Added Employee George Costanza to Yellow') {
+                console.log('/add-employee: George Costanza; Group: Yellow - Passed');
+                }
+                else {
+                    console.log('/add-employee: George Costanza; Group: Yellow - Failed');
+                }
+            }
+	        else {
+	            console.log("ERROR: " + req.statusText);
+            }
 	    });
 	    req2.send(payload);
 

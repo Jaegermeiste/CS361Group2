@@ -9,10 +9,12 @@ DROP TABLE IF EXISTS `anomalies`;
 DROP TABLE IF EXISTS `anomaly_types`;
 DROP TABLE IF EXISTS `employee_group`;
 DROP TABLE IF EXISTS `employee_groups`;	-- Kill this with fire
-DROP TABLE IF EXISTS `groups`;
 DROP TABLE IF EXISTS `employees`;
 DROP TABLE IF EXISTS `discrepancy_types`;
-
+DROP TABLE IF EXISTS `rules`; 
+DROP TABLE IF EXISTS `features_disabled`;
+DROP TABLE IF EXISTS `lockdown_boundaries`;
+DROP TABLE IF EXISTS `groups`;
 
 -- ---------- --
 # DB Creation
@@ -217,3 +219,28 @@ ALTER TABLE `employee_group`
   ADD CONSTRAINT `eg_eid_fk` FOREIGN KEY (`employeeId`) REFERENCES `employees` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   ADD CONSTRAINT `eg_gid_fk` FOREIGN KEY (`groupId`) REFERENCES `groups` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 COMMIT;
+
+CREATE TABLE `lockdown_boundaries` (
+	`id` int(11) NOT NULL AUTO_INCREMENT, 
+	`name` varchar(255) NOT NULL, 
+	`latitude` int(11), 
+	`longitude` int(11),
+	PRIMARY KEY (`id`)
+ )ENGINE=InnoDB CHARSET=utf8;
+
+CREATE TABLE `features_disabled` (
+	`id` int(11) NOT NULL AUTO_INCREMENT, 
+	`name` varchar(255) NOT NULL, 
+	PRIMARY KEY (`id`)
+ )ENGINE=InnoDB CHARSET=utf8;
+
+CREATE TABLE `rules` (
+    `id` int(11) NOT NULL AUTO_INCREMENT, 
+    `group_id` int(11) NOT NULL,
+    `lb_id` int(11) NOT NULL, 
+    `fd_id` int(11) NOT NULL, 
+    PRIMARY KEY (`id`), 
+    FOREIGN KEY (`group_id`) REFERENCES `groups`(`id`), 
+    FOREIGN KEY (`lb_id`) REFERENCES `lockdown_boundaries`(`id`), 
+    FOREIGN KEY (`fd_id`) REFERENCES `features_disabled`(`id`)
+ )ENGINE=InnoDB; 

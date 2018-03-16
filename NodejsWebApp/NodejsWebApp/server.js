@@ -3,7 +3,7 @@
 // Boilerplate code from Hello Node, Hello Express, Hello Handlebars, Using MySQL with Node & Form Handling CS 290 lectures 
 // Set up port, express, body-parser, handlebars
 
-var port = process.env.PORT || 65351; // changing port so can be run on engr server
+var port = process.env.PORT || 45689; // changing port so can be run on engr server
 // var port = process.argv[2]
 
 var Express = require('express');
@@ -65,11 +65,35 @@ var CheckSession = Login.CheckSession;
 
 // EMPLOYEES 
 // DB Handlers
-// Reference: Using MySQL with Node Lecture, CS 290 
+// Reference: Using MySQL with Node Lecture, CS 290
+
+
+// Checks input for empty / undefined / null
+function isEmpty(value){
+    
+    if (value === null || value == null)
+        return true;
+
+    else if (typeof(value) === 'undefined')
+        return true;
+
+    else if (value === "" || value == "")
+        return true;
+
+    else
+        return false;
+
+} 
+
 
 // // Insert Functions 
 function addEmployee(first, last, group, next) {
     
+    if (isEmpty(first) || isEmpty(last) || isEmpty(group)){
+        console.log("One or more fields are missing!");
+        return false;
+    }
+
     var sql = "INSERT INTO employee_group (employeeId, groupId) values ((SELECT id AS `employeeId` FROM employees WHERE f_name = (?) AND l_name = (?)), (SELECT id AS `groupId` FROM `groups` WHERE name = (?)));";
     var vars = [first, last, group]; 
     pool.query(sql, vars, function (err, results) {
@@ -77,12 +101,17 @@ function addEmployee(first, last, group, next) {
         //    next(err);
             return false;
         } 
-    })	
+    });
     return true; 
 }
 
 function addGroup(group, next) {
     
+    if (isEmpty(group)){
+        console.log("One or more fields are missing!");
+        return false;
+    }
+
     var sql = "INSERT INTO `groups` (`name`) VALUES (?)";
     var vars = [group]
     pool.query(sql, vars, function(err, results) {
@@ -96,6 +125,11 @@ function addGroup(group, next) {
 }
 
 function addRule(rule_name, group_name, boundary_name, feature_to_disable) {
+
+    if (isEmpty(rule_name) || isEmpty(group_name) || isEmpty(boundary_name) || isEmpty(feature_to_disable)){
+        console.log("One or more fields are missing!");
+        return false;
+    }
 
     var sql = "INSERT INTO `rules` (`group_id`, `lb_id`, `fd_id`, `rule_name`) VALUES ((?), (SELECT `id` FROM `groups` WHERE groups.name = (?)), (SELECT `id` FROM `lockdown_boundaries` WHERE lockdown_boundaries.name = (?)), (SELECT `id` FROM `features_disabled` WHERE features_disabled.name = (?)));"
     var vars = [rule_name, group_name, boundary_name, feature_to_disable];
@@ -192,7 +226,10 @@ App.post('/add-employee', function (req, res, next) {
 	// Successful if got to this point, save confirmation msg
         context.confirmation_msg = 'Succesfully Added Employee ' + first + ' ' + last + ' to ' + group;  	
         console.log('Added employee' + first + ' ' + last);
-    }   
+    }
+    else {
+        confirmation_msg = "Unable to add Employee. Please check and try again";
+    }  
     // Rendering confirmation msg on employee.handlebars 
     res.render('employee', context);
 });
@@ -217,6 +254,9 @@ App.post('/add-group', function (req, res, next) {
         context.confirmation_msg = 'Successfully Added Group ' + groupName;
         console.log('Added group ' + groupName); 
     }
+    else {
+        confirmation_msg = "Unable to add Group. Please check and try again";
+    }  
 	
     // Render confirmation msg on employee.handlebars 			
     res.render('employee', context);
@@ -538,7 +578,7 @@ App.get('/unittest-employee', function (req, res, next) {
 App.get('/integrationtest-employee', function (req, res, next) {
     // Ensure we are logged in 
     if (!CheckSession(req, res)) { 
-	return; 
+	   return;
     }  	
     // Tests are client side
     res.render('integrationtest-employee'); 

@@ -2,7 +2,6 @@
 
 // Boilerplate code from Hello Node, Hello Express, Hello Handlebars, Using MySQL with Node & Form Handling CS 290 lectures 
 
-
 // Set up port, express, body-parser, handlebars
 var port = process.env.PORT || 65351; 
 // var port = process.argv[2]
@@ -462,6 +461,24 @@ App.get('/view-features-disabled', function (req, res, next) {
     })
 });
 
+// Unit Tests - Rule 
+App.get('/unittest-rule', function (req, res, next) {
+
+    var context = {};
+    context.title = "Rule Unit Tests";
+    context.row = [];
+
+    // test addRule() 
+
+
+
+
+
+    console.log("Test complete");
+    res.render('loginTest', context); //using same template for employeeTest as loginTest
+    return;
+}); 
+
 // Unit Tests - Employee 
 // Mimicking structure of Unit Tests - Login for consistency 
 App.get('/unittest-employee', function (req, res, next) {
@@ -604,6 +621,19 @@ App.get('/integrationtest-employee', function (req, res, next) {
     // Tests are client side
     res.render('integrationtest-employee'); 
 }); 
+
+// GET /integrationtest-rule
+// Run Integrationt ests 
+App.get('/integrationtest-rule', function (req, res, next) {
+
+    // Ensure we are logged in 
+    // Ensure we are logged in 
+    if (!CheckSession(req, res)) {
+        return;
+    }
+    // Tests are client side
+    res.render('integrationtest-rule');
+});
 
 // 404 page
 App.use(function (req, res) {

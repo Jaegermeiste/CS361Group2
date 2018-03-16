@@ -1,12 +1,21 @@
-// client.js 
+// rules.js 
 //
 //
 // ref for all clientside classes: 
 //   https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes
 //   https://developer.mozilla.org/en-US/docs/Web/JavaScript/References/Classes/extends 
 
+
+/****************************************************
+* RulesView 
+* Creates all aspects of the Rules page, including drop-down
+* menus and tables, populated by contents of DB 
+*****************************************************/
+
 class RulesView {
 
+    // getBoundaries() 
+    // Creates drop-down based on lockdown_boundaries table 
     getBoundaries() {
         var context;
         //On load of page, send get request to /view-features-disabled and return true if successful
@@ -50,6 +59,8 @@ class RulesView {
     }
 
 
+    // getFeatures() 
+    // Creates drop-down based on features_disabled table 
     getFeatures() {
         var context;
         //On load of page, send get request to /view-features-disabled and return true if successful
@@ -91,6 +102,8 @@ class RulesView {
         });
     }
 
+    // getGroups() 
+    // Creates drop-down based on groups table 
     getGroups() {
         var context;
         //On load of page, send get request to /view-group. Return true if successful
@@ -131,6 +144,9 @@ class RulesView {
             req.send(null);
         });
     }
+
+    // getRules() 
+    // Creates tbody DOM element based on rules table
     getRules() {
         var context;
         //On load of page, send get request to /view-employee and return json-response using event listener
@@ -182,6 +198,8 @@ class RulesView {
         });
     }
 
+    // testGetRules() 
+    // Ensures that a tbody element is created and appended to document
     testGetRules() {
         this.getRules();
         var result = document.getElementsByTagName('tbody');
@@ -194,12 +212,61 @@ class RulesView {
         }
     }
 
+    // testDropDowns() 
+    // Ensures that all functions creating drop downs are effectively doing so 
+    // and therefore a select object, named appropriately, is associated with option 
+    // objects as expected
+    testDropDowns(id) {
 
+        // Test getBoundary() 
+        if (id == 'boundary_name') {
+            this.function = 'getBoundary()'; 
+            this.getBoundaries();
+        }
+
+        // Test getGroups()
+        else if (id == 'group_name') {
+            this.function = 'getGroups()';
+            this.getGroups(); 
+        }
+
+        // Test getFeatures()
+        else if (id == 'feature_to_disable') {
+            this.function = 'getFeatures()';
+            this.getFeatures(); 
+        }
+
+        // Otherwise don't know what to test 
+        else {
+            console.log('unhandled'); 
+            return false; 
+        }
+
+        // Get the number of <options> available for this drop-down
+        var result = document.getElementsByTagName('option');
+
+        // If at least 1, then we've succeeded, as we pre-populate database
+        if (result.length >= 1) {
+            console.log(this.function + '- Passed');
+        }
+        else {
+            console.log(this.function + ' - Failed');
+        }
+    }
 }
 
+
 // Create Dashboard 
+// emitting Dashboard class for now as at this time seems like unnecessary encapsulation
 var r = new RulesView();
 r.getRules();
 r.getBoundaries();
 r.getFeatures();
 r.getGroups();
+
+// Unit Tests -- to be run individually
+
+//var r = new RulesView();
+//r.testDropDowns('group_name');
+//r.testDropDowns('feature_to_disable');
+//r.testDropDowns('boundary_name');

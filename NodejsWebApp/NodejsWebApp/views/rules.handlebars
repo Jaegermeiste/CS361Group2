@@ -6,39 +6,22 @@
         <th> lockdown_boundary </th>
         <th> group_name </th>
         <th> feature_disabled </th>
-        {{{table_body}}}
+    </thead>
+    {{{table_body}}}
 </table>
-
-</br>
-</br>
-
-<form action="/add-rules" method="post">
-	<fieldset>
-        	<legend> Add a Rule </legend>
-                <label> Rule Name: </label>
-                    <input type="text" name="rule_name"/>
-                <label> Group Name: </label>  
-                    <select name="group_name">
-                        {{#each groups}}
-                        <option value={{this}}>{{this}}</option>
-                        {{/each}}
-                    </select>
-                <label> Lockdown Boundary: </label>  
-                    <select name="boundary_name">
-                        {{#each boundaries}}
-                        <option value={{this}}>{{this}}</option>
-                        {{/each}}
-                    </select>
-                <label> Feature to Disable: </label>  
-                    <select name="feature_to_disable">
-                        {{#each features}}
-                        <option value={{this}}>{{this}}</option>
-                        {{/each}}
-                    </select>
-                <input type="submit" value="Submit Rule" />
-
-	</fieldset>
-
+<form action="/add-rule" method="post">
+    <fieldset>
+        <legend> Add a Rule </legend>
+        <label> Rule Name: </label>
+        <input type="text" name="rule_name" />
+        <label> Group Name: </label>
+        <select id="group_name" name="group_name"></select>
+        <label> Lockdown Boundary: </label>
+        <select id="boundary_name" name="boundary_name"></select>
+        <label> Feature to Disable: </label>
+        <select id="feature_to_disable" name="feature_to_disable"></select>
+        <input type="submit" value="Submit Rule" />
+    </fieldset>
 </form>
-        <b>{{{confirmation_msg}}}</b>
-        <script src="rules.js"> </script>
+<b>{{{confirmation_msg}}}</b>
+<script src="rules.js"> </script>

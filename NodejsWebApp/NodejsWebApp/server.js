@@ -1,17 +1,17 @@
 // server.js
 
 // Boilerplate code from Hello Node, Hello Express, Hello Handlebars, Using MySQL with Node & Form Handling CS 290 lectures 
+
+
 // Set up port, express, body-parser, handlebars
-
-var port = process.env.PORT || 45689; // changing port so can be run on engr server
+var port = process.env.PORT || 65351; 
 // var port = process.argv[2]
-
 var Express = require('express');
 var Handlebars = require('express-handlebars').create({ defaultLayout: "main" });
 var BodyParser = require('body-parser');
 var App = Express();
-
 var mysql = require('mysql');
+
 // ENGR MySQL
 var pool = mysql.createPool({
  	connectionLimit: 10,
@@ -33,13 +33,9 @@ var pool = mysql.createPool({
 App.engine('handlebars', Handlebars.engine);
 App.set('view engine', 'handlebars');
 App.set('port', port);
-  
 App.use(BodyParser.urlencoded({ extended: true }));
 App.use(BodyParser.json());
-
 App.use(Express.static("public"));
-
-
 
 // Exports
 module.exports.Express = Express;
@@ -48,7 +44,6 @@ module.exports.BodyParser = BodyParser;
 module.exports.App = App;
 module.exports.MySQL = mysql;
 module.exports.Pool = pool;
-
 
 // ANOMALIES 
 var Anomalies = require('./anomalies.js');
@@ -63,12 +58,13 @@ var Login_Page = Login.Login_Page;
 var Logout = Login.Logout_Page;
 var CheckSession = Login.CheckSession;
 
-// EMPLOYEES 
-// DB Handlers
+
+// EMPLOYEES && RULES
+
+// ********** Helper Functions *****************
 // Reference: Using MySQL with Node Lecture, CS 290
-
-
 // Checks input for empty / undefined / null
+
 function isEmpty(value){
     
     if (value === null || value == null)
@@ -85,53 +81,63 @@ function isEmpty(value){
 
 } 
 
-
-// // Insert Functions 
+// Add Existing Employee (to Group) 
+// Returns true if no errors 
 function addEmployee(first, last, group, next) {
     
+    // Input validation
     if (isEmpty(first) || isEmpty(last) || isEmpty(group)){
         console.log("One or more fields are missing!");
         return false;
     }
 
+    // Make SQL query 
     var sql = "INSERT INTO employee_group (employeeId, groupId) values ((SELECT id AS `employeeId` FROM employees WHERE f_name = (?) AND l_name = (?)), (SELECT id AS `groupId` FROM `groups` WHERE name = (?)));";
     var vars = [first, last, group]; 
     pool.query(sql, vars, function (err, results) {
         if (err) {
-        //    next(err);
+        //  next(err);
             return false;
         } 
     });
     return true; 
 }
 
+// Add New Group
+// Returns true if no erros 
 function addGroup(group, next) {
     
+    // Input validation 
     if (isEmpty(group)){
         console.log("One or more fields are missing!");
         return false;
     }
 
+    // Make SQL query 
     var sql = "INSERT INTO `groups` (`name`) VALUES (?)";
     var vars = [group]
     pool.query(sql, vars, function(err, results) {
         if (err) {
             console.log(err);
-        //    next(err);
+        //  next(err);
             return false;
         }
     })
     return true; 	 
 }
 
+// Add Rule 
+// Returns true if no errors 
 function addRule(rule_name, group_name, boundary_name, feature_to_disable) {
 
+    // Input validation 
     if (isEmpty(rule_name) || isEmpty(group_name) || isEmpty(boundary_name) || isEmpty(feature_to_disable)){
         console.log("One or more fields are missing!");
         return false;
     }
 
-    var sql = "INSERT INTO `rules` (`group_id`, `lb_id`, `fd_id`, `rule_name`) VALUES ((?), (SELECT `id` FROM `groups` WHERE groups.name = (?)), (SELECT `id` FROM `lockdown_boundaries` WHERE lockdown_boundaries.name = (?)), (SELECT `id` FROM `features_disabled` WHERE features_disabled.name = (?)));"
+    // Make SQL query 
+    var sql = "INSERT INTO `rules` ( `rule_name`, `group_id`, `lb_id`, `fd_id`) VALUES ((?), (SELECT `id` FROM `groups` WHERE groups.name = (?)), (SELECT `id` FROM `lockdown_boundaries` WHERE lockdown_boundaries.name = (?)), (SELECT `id` FROM `features_disabled` WHERE features_disabled.name = (?)));"
     var vars = [rule_name, group_name, boundary_name, feature_to_disable];
     pool.query(sql, vars, function (err, results) {
         if (err) {
@@ -140,10 +146,12 @@ function addRule(rule_name, group_name, boundary_name, feature_to_disable) {
         }
     })
     return true;
-
 }
 
-// *** Request Handlers ***
+// ********** Request Handlers *****************
+
+// GET /home 
+// Renders home page 
 App.get('/home', function(req,res, next){
     var context = {};
 
@@ -152,11 +160,13 @@ App.get('/home', function(req,res, next){
         return;
     }
 
+    // Render home page 
     res.render('home', context);
 });
 
 
-// // Default GET Handlers for Main Employee Page
+// GET /employee 
+// Renders base employee page 
 App.get('/employee', function(req, res, next){
     var context = {};
 
@@ -165,9 +175,12 @@ App.get('/employee', function(req, res, next){
         return;
     }
 
+    // Render base employee page
     res.render('employee', context);
 });
 
+// GET /rules 
+// Renders base employee page 
 App.get('/rules', function(req, res, next) {
     var context = {}; 
     // Ensure we are logged in 
@@ -175,9 +188,12 @@ App.get('/rules', function(req, res, next) {
         return; 
     }	  	
 
+    // Render base Rules page
     res.render('rules', context); 
 });
 
+// GET /add-employee 
+// Verbal redirect to POST 
 App.get('/add-employee', function(req, res, next){
     var context = {};
 
@@ -186,11 +202,12 @@ App.get('/add-employee', function(req, res, next){
         return;
     }
 
-    var confirmation_msg = "No employee added, use POST.";
+    context.confirmation_msg = "No employee added, use POST.";
     res.render('employee', context);
 });
 
-// GET 
+// GET /add-group 
+// Verbal redirect to POST 
 App.get('/add-group', function(req, res, next){
     var context = {};
 
@@ -199,13 +216,13 @@ App.get('/add-group', function(req, res, next){
         return;
     }
 
-    var confirmation_msg = "No group added, use POST.";
+    context.confirmation_msg = "No group added, use POST.";
     res.render('employee', context);
 });
 
 
-
-// // Request Handler to Add Employee
+// POST /add-employee
+// Adds employee from request body to DB & renders changes (confirmation_msg) on employee page 
 App.post('/add-employee', function (req, res, next) {
 
     var context = {};
@@ -220,22 +237,25 @@ App.post('/add-employee', function (req, res, next) {
     var last = req.body.last;
     var group = req.body.group_selected;
 
-    console.log('Attempting add of ' + first + ' ' + last + ' into group ' + group);  
+    console.log('Attempting add of ' + first + ' ' + last + ' into group ' + group);
+
     // Insert into DB and save result
     if ( addEmployee(first, last, group, next) == true ) {
-	// Successful if got to this point, save confirmation msg
+	    // Successful if got to this point, save confirmation msg
         context.confirmation_msg = 'Succesfully Added Employee ' + first + ' ' + last + ' to ' + group;  	
         console.log('Added employee' + first + ' ' + last);
     }
     else {
-        confirmation_msg = "Unable to add Employee. Please check and try again";
-    }  
+        context.confirmation_msg = "Unable to add Employee. Please check and try again";
+    }
+
     // Rendering confirmation msg on employee.handlebars 
     res.render('employee', context);
 });
 
 
-// // Request Handler to Add Group
+// POST /add-group
+// Adds group from request body to DB & renders changes (confirmation_msg) on employee page 
 App.post('/add-group', function (req, res, next) {
 
     var context = {};
@@ -255,7 +275,7 @@ App.post('/add-group', function (req, res, next) {
         console.log('Added group ' + groupName); 
     }
     else {
-        confirmation_msg = "Unable to add Group. Please check and try again";
+        context.confirmation_msg = "Unable to add Group. Please check and try again";
     }  
 	
     // Render confirmation msg on employee.handlebars 			
@@ -264,7 +284,8 @@ App.post('/add-group', function (req, res, next) {
 });
 
 
-// // Request Handler to View Employees / Groups
+// GET /view-employee
+// Retrieve all information from employee_group database (joined with employee and groups db)
 App.get('/view-employee', function (req, res, next) {
 
     // Ensure we are logged in
@@ -273,6 +294,8 @@ App.get('/view-employee', function (req, res, next) {
     }
 
     console.log("Getting employee list.");
+    
+    // Make SQL Query 
     var sql = "SELECT groups.name AS `groupName`, employees.f_name AS `firstName`, employees.l_name AS `lastName` FROM `employees` INNER JOIN `employee_group` ON employee_group.employeeId = employees.id INNER JOIN `groups` ON employee_group.groupId = groups.id ORDER BY groups.name;";
     pool.query(sql, function (err, rows, fields) {
         if (err) {
@@ -291,6 +314,9 @@ App.get('/view-employee', function (req, res, next) {
 
 }); 
 
+
+// POST /add-rule
+// RAdd rule to DB and render changes on page
 App.post('/add-rule', function (req, res, next) {
     var context = {};
 
@@ -305,26 +331,32 @@ App.post('/add-rule', function (req, res, next) {
     var boundary_name = req.body.boundary_name;
     var feature_to_disable = req.body.feature_to_disable;
 
-    console.log('Attempting add of ' + first + ' ' + last + ' into group ' + group);
+    // Logging for sanity check
+    console.log("rule name to add: " + rule_name);
+    console.log("group name to add: " + group_name);
+    console.log("boundary name to add: " + boundary_name);
+    console.log("feature to disable: " + feature_to_disable);
+
     // Insert into DB and save result
     if (addRule(rule_name, group_name, boundary_name, feature_to_disable) == true) {
         // Successful if got to this point, save confirmation msg
-        context.confirmation_msg = 'Succesfully Added Rule' + rule_name;
-        console.log('Added rule' + rule_name);
+        context.confirmation_msg = 'Succesfully Added Rule ' + rule_name;
+        console.log('Added rule ' + rule_name);
     }
     // Rendering confirmation msg on employee.handlebars 
     res.render('rules', context);
 }); 
 
 
-// The following rule - related GET endpoints are assuming we are going to use a dropdown box to populate form
+// GET /view-rule
+// View rules, sending information as though we would use it to build drop down
 App.get('/view-rule', function (req, res, next) {
     // Ensure we are logged in
     if (!CheckSession(req, res)) {
         return;
     }
 
-    // Get rules to populate in table
+    // Make SQL query 
     console.log("Getting rule list.");
     var sql = "SELECT r.rule_name AS `rule`, lb.name AS `lockdown boundary`, g.name AS `group`, fd.name AS `feature disbled` FROM `rules` r INNER JOIN `groups` g ON r.group_id = g.id INNER JOIN `features_disabled` fd ON r.fd_id = fd.id INNER JOIN `lockdown_boundaries`lb ON r.lb_id = lb.id ORDER BY rule_name;";
     pool.query(sql, function (err, rows, fields) {
@@ -334,22 +366,24 @@ App.get('/view-rule', function (req, res, next) {
             return;
         }
 
+        // Send JSON result to be parsed by client
         var db_result = rows;
-        console.log('get-lockdown-boundaries endpoint - returning: ' + db_result);
+        console.log('view-rule endpoint - returning: ' + db_result);
         res.send(JSON.stringify(db_result));
     })
 });
 
-// The following rule - related GET endpoints are assuming we are going to use a dropdown box to populate form
+// GET /view-group
+// View groups, sending information as though we would use it to build drop down
 App.get('/view-group', function (req, res, next) {
     // Ensure we are logged in
     if (!CheckSession(req, res)) {
         return;
     }
 
-    // Get group list
+    // Get group list without NULL
     console.log("Getting group list.");
-    var sql = "SELECT name FROM `groups` ORDER BY name;"
+    var sql = "SELECT name FROM `groups` WHERE name IS NOT NULL AND name != '' ORDER BY name;"
     pool.query(sql, function (err, rows, fields) {
         if (err) {
             console.log(err);
@@ -358,15 +392,20 @@ App.get('/view-group', function (req, res, next) {
         }
 
         var db_result = rows;
-        console.log('get-group endpoint - returning: ' + db_result);
+        console.log('view-group endpoint - returning: ' + db_result);
 
-        var context = {};
-        context.groups = JSON.stringify(db_result); 
+        // Send JSON result to be parsed
+        var context = {}
+        context = JSON.stringify(db_result);
+
         res.send(context);
     })
 });
 
+// GET /view-lockdown-boundary
+// View boundaries, sending info as though we would use it to build drop down
 App.get('/view-lockdown-boundary', function (req, res, next) {
+
 
     // Ensure we are logged in
     if (!CheckSession(req, res)) {
@@ -386,13 +425,16 @@ App.get('/view-lockdown-boundary', function (req, res, next) {
         var db_result = rows;
         console.log('get-lockdown-boundaries endpoint - returning: ' + db_result);
         var context = {}
-        context.boundaries = JSON.stringify(db_result);
+        context = JSON.stringify(db_result);
 
         res.send(context);
     })
 
 });
 
+
+// GET /view-features-disabled
+// View features, sending info as though we would use it to build drop down
 App.get('/view-features-disabled', function (req, res, next) {
 
     // Ensure we are logged in
@@ -414,7 +456,7 @@ App.get('/view-features-disabled', function (req, res, next) {
         console.log('get-features-disabled endpoint - returning: ' + db_result);
 
         var context = {}
-        context.features = JSON.stringify(db_result);
+        context = JSON.stringify(db_result);
 
         res.send(context);
     })
@@ -430,7 +472,6 @@ App.get('/unittest-employee', function (req, res, next) {
 
     // test addEmployee()
     // Happy Paths
-    	
     var result = addEmployee('Cody', 'Hannan', 'Red');
     var sql = "SELECT groups.name AS `groupName`, employees.f_name AS `firstName`, employees.l_name AS `lastName` FROM `employees` INNER JOIN `employee_group` ON employee_group.employeeId = employees.id INNER JOIN `groups` ON employee_group.groupId = groups.id WHERE employees.f_name = 'Cody' AND employees.l_name = 'Hannan' AND groups.name = 'Red';";
     pool.query(sql, function (err, rows, fields) {
@@ -506,28 +547,6 @@ App.get('/unittest-employee', function (req, res, next) {
 	    }
 	})
     
-    // test getEmployee() 
-    
-/*
-	result = JSON.parse(getEmployee())
-	if (result.length > 0) {
-		console.log('/view-employee: Result length > 0 - Passed');  
-	}
-	else {
-		console.log('Getting Employees: Result length <= 0 - Failed');  
-	} 
-	for (r in result) {
-		for (key in result[r]){ 
-			if (key == 'groupName' || key == 'firstName' || key == 'lastName' || key == 'groupId') {
-				console.log('Getting Employees: result attribute is ' + key + ' - Passed'); 
-			}    
-			else {
-				console.log('Getting Employees: result attribute is ' + key + ' - Failed'); 
-			}
-		}
-	}
-*/
-
    	// test addGroup() 
     // Hapy paths 
 	var result5 = addGroup('supercalifragilistic'); 
@@ -575,6 +594,8 @@ App.get('/unittest-employee', function (req, res, next) {
 
 });
 
+// GET /integrationtest-employee 
+// Run integration tests 
 App.get('/integrationtest-employee', function (req, res, next) {
     // Ensure we are logged in 
     if (!CheckSession(req, res)) { 
@@ -584,6 +605,7 @@ App.get('/integrationtest-employee', function (req, res, next) {
     res.render('integrationtest-employee'); 
 }); 
 
+// 404 page
 App.use(function (req, res) {
     // Ensure we are logged in
     if (!CheckSession(req, res)) {
@@ -594,6 +616,7 @@ App.use(function (req, res) {
     res.render("404");
 });
 
+// 500 page 
 App.use(function (err, req, res, next) {
     // Ensure we are logged in
     if (!CheckSession(req, res)) {
@@ -605,7 +628,6 @@ App.use(function (err, req, res, next) {
     res.status(500);
     res.render("500");
 });
-
 
 
 App.listen(App.get('port'), function(){

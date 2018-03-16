@@ -3,7 +3,7 @@
 // Boilerplate code from Hello Node, Hello Express, Hello Handlebars, Using MySQL with Node & Form Handling CS 290 lectures 
 
 // Set up port, express, body-parser, handlebars
-var port = process.env.PORT || 65351; 
+var port = process.env.PORT || 45689; 
 // var port = process.argv[2]
 var Express = require('express');
 var Handlebars = require('express-handlebars').create({ defaultLayout: "main" });
@@ -357,7 +357,7 @@ App.get('/view-rule', function (req, res, next) {
 
     // Make SQL query 
     console.log("Getting rule list.");
-    var sql = "SELECT r.rule_name AS `rule`, lb.name AS `lockdown boundary`, g.name AS `group`, fd.name AS `feature disbled` FROM `rules` r INNER JOIN `groups` g ON r.group_id = g.id INNER JOIN `features_disabled` fd ON r.fd_id = fd.id INNER JOIN `lockdown_boundaries`lb ON r.lb_id = lb.id ORDER BY rule_name;";
+    var sql = "SELECT r.rule_name AS `rule`, lb.name AS `lockdown boundary`, g.name AS `group`, fd.name AS `feature disabled` FROM `rules` r INNER JOIN `groups` g ON r.group_id = g.id INNER JOIN `features_disabled` fd ON r.fd_id = fd.id INNER JOIN `lockdown_boundaries`lb ON r.lb_id = lb.id ORDER BY rule_name;";
     pool.query(sql, function (err, rows, fields) {
         if (err) {
             console.log(err);

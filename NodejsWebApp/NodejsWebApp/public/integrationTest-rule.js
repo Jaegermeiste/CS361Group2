@@ -7,7 +7,7 @@ class ruleIntegrationTest {
     testViewRule() {
 
         var req = new XMLHttpRequest();
-        req.open('GET', 'http://flip1.engr.oregonstate.edu:65351/view-rule', true);        
+        req.open('GET', 'http://flip3.engr.oregonstate.edu:65351/view-rule', true);        
         req.setRequestHeader('Content-Type', 'application/json');
 
         req.addEventListener('load',
@@ -61,7 +61,7 @@ class ruleIntegrationTest {
         req.addEventListener('load', function () {
             if (req.status >= 200 && req.status < 400) {
                 console.log('/add-rule: OK status - Passed');
-                if (document.getElementById('msg') != 'Succesfully Added Employee ') {
+                if (document.getElementById('msg') != 'Successfully Added Rule ' + payload.body.rule_name) {
                     console.log('/add-rule: Happy Path - Rule: IntTestRule1; Group: Red; Boundary: South Campus; Feature: WiFi - Passed');
                 }
                 else {
@@ -88,11 +88,11 @@ class ruleIntegrationTest {
         req2.addEventListener('load', function () {
             if (req2.status >= 200 && req2.status < 400) {
                 console.log('/add-employee: OK status - Passed');
-                if (document.getElementById('msg') != 'Successfully Added Employee to ') {
-                    console.log('/add-rule: Sad Path - Empty Emloyee, Empty Group - Passed');
+                if (document.getElementById('msg') != 'Successfully Added Rule ' + payload.body.rule_name) {
+                    console.log('/add-rule: Sad Path - Empty Payload Contents - Passed');
                 }
                 else {
-                    console.log('/add-rule: Sad Path - Empty Employee, Empty Group - Failed - Requires more strict requirements on addition');
+                    console.log('/add-rule: Sad Path - Empty Payload Contents - Failed - Requires more strict requirements on addition');
                 }
             }
             else {
@@ -111,7 +111,7 @@ class ruleIntegrationTest {
         req.addEventListener('load',
             function () {
                 if (req.status >= 200 && req.status < 400) {
-                    console.log('/view-group: OK status - Passed')
+                    console.log('/view-group: OK status - Passed');
                     var result = JSON.parse(req.response);
                     var r, key;
                     if (result.length > 0) {
@@ -149,7 +149,7 @@ class ruleIntegrationTest {
         req.addEventListener('load',
             function () {
                 if (req.status >= 200 && req.status < 400) {
-                    console.log('/view-group: OK status - Passed')
+                    console.log('/view-group: OK status - Passed');
                     var result = JSON.parse(req.response);
                     var r, key;
                     if (result.length > 0) {
@@ -188,7 +188,7 @@ class ruleIntegrationTest {
         req.addEventListener('load',
             function () {
                 if (req.status >= 200 && req.status < 400) {
-                    console.log('/view-group: OK status - Passed')
+                    console.log('/view-group: OK status - Passed');
                     var result = JSON.parse(req.response);
                     var r, key;
                     if (result.length > 0) {

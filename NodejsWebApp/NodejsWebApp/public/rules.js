@@ -201,15 +201,45 @@ class RulesView {
     // testGetRules() 
     // Ensures that a tbody element is created and appended to document
     testGetRules() {
+        console.log('Testing getRules()');
         this.getRules();
-        var result = document.getElementsByTagName('tbody');
 
-        if (result.length == 1) {
-            console.log('getRules - Pass');
-        }
-        else {
-            console.log('getRules - Fail');
-        }
+        document.addEventListener("DOMContentLoaded", function (event) {
+
+            var body = document.getElementsByTagName('tbody');
+            var rows = document.getElementsByTagName('tr');
+
+            var row_count = 0;
+
+            var req = new XMLHttpRequest();
+            req.open('GET', 'http://flip3.engr.oregonstate.edu:65351/view-rule', true);
+            req.setRequestHeader('Content-Type', 'application/json');
+
+            req.addEventListener('load', function () {
+
+                if (req.status >= 200 && req.status < 400) {
+                    var json_response = JSON.parse(req.response);
+                    row_count = Object.keys(json_response).length;
+                    console.log('Numer of rows: ' + row_count);
+
+                    // Check for presence of a table, which should be by default
+                    if (body.length != 1)
+                        console.log('getRules tbody present - Failed');
+                    else
+                        console.log('getRules tbody present - Passed');
+                    
+
+                        // Decrement rows.length because thead is implicitly counted as tr
+                    // Check number of built rows against number returned from GET call 
+                    if (rows.length - 1 != row_count)
+                        console.log('getRules expecting ' + row_count + ' tr elements, found ' + (rows.length - 1) + ' - Failed');
+                    else
+                        console.log('getRules expecting ' + row_count + ' tr elements, found ' + (rows.length - 1) + ' - Passed ');
+                }
+            });
+            req.send(null);
+        });
+
     }
 
     // testDropDowns() 
@@ -218,21 +248,25 @@ class RulesView {
     // objects as expected
     testDropDowns(id) {
 
+        console.log('Testing DropDowns');
+
+        var toTest = '';
+
         // Test getBoundary() 
         if (id == 'boundary_name') {
-            this.function = 'getBoundary()'; 
+            toTest = 'getBoundary()'; 
             this.getBoundaries();
         }
 
         // Test getGroups()
         else if (id == 'group_name') {
-            this.function = 'getGroups()';
+            toTest = 'getGroups()';
             this.getGroups(); 
         }
 
         // Test getFeatures()
         else if (id == 'feature_to_disable') {
-            this.function = 'getFeatures()';
+            toTest = 'getFeatures()';
             this.getFeatures(); 
         }
 
@@ -242,16 +276,22 @@ class RulesView {
             return false; 
         }
 
-        // Get the number of <options> available for this drop-down
-        var result = document.getElementsByTagName('option');
+        document.addEventListener("DOMContentLoaded", function (event) {
 
-        // If at least 1, then we've succeeded, as we pre-populate database
-        if (result.length >= 1) {
-            console.log(this.function + '- Passed');
-        }
-        else {
-            console.log(this.function + ' - Failed');
-        }
+            // Get the number of <options> available for this drop-down
+            var result = document.getElementsByTagName('option');
+
+            console.log('options found:' + result.length);
+
+
+            // If at least 1, then we've succeeded, as we pre-populate database
+            if (result.length >= 1)
+                console.log(toTest + '- Passed');
+            else
+                console.log(toTest + ' - Failed');
+        });        
+
+
     }
 }
 
@@ -259,10 +299,11 @@ class RulesView {
 // Create Dashboard 
 // emitting Dashboard class for now as at this time seems like unnecessary encapsulation
 var r = new RulesView();
-r.getRules();
-r.getBoundaries();
-r.getFeatures();
-r.getGroups();
+r.testGetRules();
+r.testDropDowns('boundary_name');
+r.testDropDowns('group_name');
+r.testDropDowns('feature_to_disable');
+
 
 // Unit Tests -- to be run individually
 

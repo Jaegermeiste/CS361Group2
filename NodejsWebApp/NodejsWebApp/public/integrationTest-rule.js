@@ -7,7 +7,7 @@ class ruleIntegrationTest {
     testViewRule() {
 
         var req = new XMLHttpRequest();
-        req.open('GET', 'http://flip1.engr.oregonstate.edu:45689/view-rule', true);        
+        req.open('GET', 'http://flip1.engr.oregonstate.edu:65351/view-rule', true);        
         req.setRequestHeader('Content-Type', 'application/json');
 
         req.addEventListener('load',
@@ -47,7 +47,7 @@ class ruleIntegrationTest {
     testAddRule() {
      
         var req = new XMLHttpRequest();
-        req.open('POST', 'http://flip1.engr.oregonstate.edu:45689/add-rule', true);
+        req.open('POST', 'http://flip3.engr.oregonstate.edu:65351/add-rule', true);
         req.setRequestHeader('Content-Type', 'application/json');
 
         // add-rule - happy path 

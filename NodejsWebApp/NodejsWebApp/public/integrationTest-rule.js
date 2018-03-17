@@ -74,7 +74,7 @@ class ruleIntegrationTest {
         });
         req.send(payload);
 
-      // add-employee - sad path 
+      // add-rule - sad path 
         var req2 = new XMLHttpRequest();
         req2.open('POST', 'http://flip3.engr.oregonstate.edu:65351/add-rule', true);
         req2.setRequestHeader('Content-Type', 'application/json');
@@ -87,7 +87,7 @@ class ruleIntegrationTest {
 
         req2.addEventListener('load', function () {
             if (req2.status >= 200 && req2.status < 400) {
-                console.log('/add-employee: OK status - Passed');
+                console.log('/add-rule: OK status - Passed');
                 if (document.getElementById('msg') != 'Successfully Added Rule ' + payload.body.rule_name) {
                     console.log('/add-rule: Sad Path - Empty Payload Contents - Passed');
                 }
@@ -149,7 +149,7 @@ class ruleIntegrationTest {
         req.addEventListener('load',
             function () {
                 if (req.status >= 200 && req.status < 400) {
-                    console.log('/view-group: OK status - Passed');
+                    console.log('/view-lockdown-boundary: OK status - Passed');
                     var result = JSON.parse(req.response);
                     var r, key;
                     if (result.length > 0) {
@@ -188,7 +188,7 @@ class ruleIntegrationTest {
         req.addEventListener('load',
             function () {
                 if (req.status >= 200 && req.status < 400) {
-                    console.log('/view-group: OK status - Passed');
+                    console.log('/view-features-disabled: OK status - Passed');
                     var result = JSON.parse(req.response);
                     var r, key;
                     if (result.length > 0) {

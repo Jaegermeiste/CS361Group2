@@ -7,7 +7,7 @@
 
 class Dashboard {
 
-    constructor() {
+    constructor() { 
         this.eView = new EmployeeView();
     }
 
@@ -41,7 +41,7 @@ class EmployeeView {
             // Send an asynchronous request
             // Ref: Adapted from Asynchronous Requests Lecture - CS 290
             var req = new XMLHttpRequest();
-            req.open('GET', event.currentTarget.location.origin + '/view-employee', true);
+            req.open('GET', 'http://flip3.engr.oregonstate.edu:45698/view-employee', true);
             req.setRequestHeader('Content-Type', 'application/json');
             req.addEventListener('load', function () {
 
@@ -84,18 +84,45 @@ class EmployeeView {
     // Test getEmployeeGroups
     // Ensures that a tbody object is in fact made and appended to document
     testGetEmployeeGroups() {
+        console.log('Testing GetEmployeeGroups()');
         this.getEmployeeGroups();
-        var result = document.getElementsByTagName('tbody');
+        document.addEventListener("DOMContentLoaded", function (event) {
 
-        if (result.length == 1) {
-            console.log('getEmployeeGroups - Pass');
-        }
-        else {
-            console.log('getEmployeeGroups - Fail');
-        }
+            var body = document.getElementsByTagName('tbody');
+            var rows = document.getElementsByTagName('tr');
+
+            var row_count = 0;
+
+            var req = new XMLHttpRequest();
+            req.open('GET', 'http://flip3.engr.oregonstate.edu:45698/view-employee', true);
+            req.setRequestHeader('Content-Type', 'application/json');
+
+            req.addEventListener('load', function () {
+
+                if (req.status >= 200 && req.status < 400) {
+                    var json_response = JSON.parse(req.response);
+                    row_count = Object.keys(json_response).length;
+                    console.log('Numer of rows: ' + row_count);
+
+                    // Check for presence of a table, which should be by default
+                    if (body.length != 1)
+                        console.log('getEmployeeGroups tbody present - Fail');
+                    else
+                        console.log('getEmployeeGroups tbody present - Pass');
+                    
+
+                        // Decrement rows.length because thead is implicitly counted as tr
+                    // Check number of built rows against number returned from GET call 
+                    if (rows.length - 1 != row_count)
+                        console.log('getEmployeeGroups expecting ' + row_count + ' tr elements, found ' + (rows.length - 1) + ' - Failed');
+                    else
+                        console.log('getEmployees expecting ' + row_count + ' tr elements, found ' + (rows.length - 1) + ' - Passed ');
+                }
+            });
+            req.send(null);
+        });
+
     }
-
-
 }
 
 // Create Dashboard 

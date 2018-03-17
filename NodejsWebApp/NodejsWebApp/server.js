@@ -3,7 +3,7 @@
 // Boilerplate code from Hello Node, Hello Express, Hello Handlebars, Using MySQL with Node & Form Handling CS 290 lectures 
 
 // Set up port, express, body-parser, handlebars
-var port = process.env.PORT || 65351; 
+var port = process.env.PORT || 45698; 
 // var port = process.argv[2]
 var Express = require('express');
 var Handlebars = require('express-handlebars').create({ defaultLayout: "main" });
@@ -305,6 +305,9 @@ App.get('/view-employee', function (req, res, next) {
 
         var db_result = rows;
         console.log('getEmployee() returning: ' + db_result);
+
+        console.log('rows contents: ' + rows);
+        console.log('length of rows: ' + Object.keys(rows).length);
 
         // Return response to the calling client-side function 
         res.send(JSON.stringify(db_result));

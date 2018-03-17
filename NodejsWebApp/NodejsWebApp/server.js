@@ -471,14 +471,34 @@ App.get('/unittest-rule', function (req, res, next) {
     context.title = "Rule Unit Tests";
     context.row = [];
 
-    // test addRule() 
+    // test addRule() - happy path 
+    var result = addRule('this_rule', 'Yellow', 'East Wing', 'Bluetooth');  
+    if (result == true) {
+        context.row.push({"name":"addRule() - Happy Path - Adding known rule parameters"}, {"status": "Passed"});
+    }  
+    else {
+        context.row.push({"name":"addRule() - Happy Path - Adding known rule parameters"}, {"status": "Failed"}); 
+    }	
 
+    // test addRule() - sad path 
+    var result2 = addRule('', '', '', '');
+    if (result == true) { 
+        context.row.push({"name":"addRule() - Sad Path - Adding empty rule parameters"}, {"status": "Failed"});
+    }
+    else { 
+        context.row.push({"name":"addRule() - Sad Path - Adding empty rule parameters"}, {"status": "Passed"}); 
+    }
 
-
-
-
+    // test addRule() - sad path 
+    var result3 = addRule('that_rule', 'Crimson', 'West Wing', 'Sanity');
+    if (result == true) { 
+        context.row.push({"name":"addRule() - Sad Path - Adding valid rule name, invalid parameters"}, {"status": "Failed"}); 
+    }
+    else {
+        context.row.push({"name":"addRule() - Sad Path - Adding valid rule name, invalid parameters"}, {"status": "Passed"}); 
+    }      
     console.log("Test complete");
-    res.render('loginTest', context); //using same template for employeeTest as loginTest
+    res.render('loginTest', context); //using same template for ruleTest as loginTest
     return;
 }); 
 

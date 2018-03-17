@@ -3,7 +3,7 @@
 // Boilerplate code from Hello Node, Hello Express, Hello Handlebars, Using MySQL with Node & Form Handling CS 290 lectures 
 
 // Set up port, express, body-parser, handlebars
-var port = process.env.PORT || 45698; 
+var port = process.env.PORT || 65351; 
 // var port = process.argv[2]
 var Express = require('express');
 var Handlebars = require('express-handlebars').create({ defaultLayout: "main" });

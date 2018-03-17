@@ -200,6 +200,7 @@ class RulesView {
 
     // testGetRules() 
     // Ensures that a tbody element is created and appended to document
+    // Checks number of tr elements against those returned by call to /view-rule endpoint
     testGetRules() {
         console.log('Testing getRules()');
         this.getRules();
@@ -242,6 +243,116 @@ class RulesView {
 
     }
 
+    // testGetGroups() 
+    // Tests the number of options listed vs. the number returned from /view-group
+    testGetGroups() {
+        console.log('Testing getGroups()');
+        this.getGroups();
+
+        document.addEventListener("DOMContentLoaded", function (event) {
+
+            var options = group_name.children;
+
+            var opt_count = 0;
+
+            var req = new XMLHttpRequest();
+            req.open('GET', 'http://flip3.engr.oregonstate.edu:65351/view-group', true);
+            req.setRequestHeader('Content-Type', 'application/json');
+
+            req.addEventListener('load', function () {
+
+                if (req.status >= 200 && req.status < 400) {
+                    var json_response = JSON.parse(req.response);
+                    opt_count = Object.keys(json_response).length;
+                    console.log('Numer of groups returned from GET: ' + opt_count);
+
+                    // Check number of built options against number returned from GET call 
+                    if (options.length != opt_count)
+                        console.log('getGroups expecting ' + opt_count + ' child elements, found ' + options.length + ' - Failed');
+                    else
+                        console.log('getGroups expecting ' + opt_count + ' child elements, found ' + options.length + ' - Passed ');
+                }
+            });
+            req.send(null);
+        });
+
+    }
+
+    // testGetBoundaries()
+    // Tests the number of boundaries listed vs. the number returned from /view-lockdown-boundary
+    testGetBoundaries() {
+        console.log('Testing getBoundaries()');
+        this.getBoundaries();
+
+        document.addEventListener("DOMContentLoaded", function (event) {
+
+            // Number of boundaries inside populated dropdown
+            var boundaries = boundary_name.children;
+
+            // Will hold the number returned from GET call 
+            var bound_count = 0;
+
+            var req = new XMLHttpRequest();
+            req.open('GET', 'http://flip3.engr.oregonstate.edu:65351/view-lockdown-boundary', true);
+            req.setRequestHeader('Content-Type', 'application/json');
+
+            req.addEventListener('load', function () {
+
+                if (req.status >= 200 && req.status < 400) {
+                    var json_response = JSON.parse(req.response);
+                    bound_count = Object.keys(json_response).length;
+                    console.log('Numer of boundaries returned from GET: ' + bound_count);
+
+                    // Check number of built boundaries against number returned from GET call 
+                    if (boundaries.length != bound_count)
+                        console.log('getBoundaries expecting ' + bound_count + ' child elements, found ' + boundaries.length + ' - Failed');
+                    else
+                        console.log('getBoundaries expecting ' + bound_count + ' child elements, found ' + boundaries.length + ' - Passed ');
+                }
+            });
+            req.send(null);
+        });
+
+    }
+
+    // testGetFeatures()
+    // Tests the number of boundaries listed vs. the number returned from /view-lockdown-boundary
+    testGetFeatures() {
+        console.log('Testing getFeatures()');
+        this.getFeatures();
+
+        document.addEventListener("DOMContentLoaded", function (event) {
+
+            // Number of features inside populated dropdown
+            var features = feature_to_disable.children;
+
+            // Will hold the number returned from GET call 
+            var feat_count = 0;
+
+            var req = new XMLHttpRequest();
+            req.open('GET', 'http://flip3.engr.oregonstate.edu:65351/view-features-disabled', true);
+            req.setRequestHeader('Content-Type', 'application/json');
+
+            req.addEventListener('load', function () {
+
+                if (req.status >= 200 && req.status < 400) {
+                    var json_response = JSON.parse(req.response);
+                    feat_count = Object.keys(json_response).length;
+                    console.log('Numer of features returned from GET: ' + feat_count);
+
+                    // Check number of built features against number returned from GET call 
+                    if (features.length != feat_count)
+                        console.log('getFeatures expecting ' + feat_count + ' child elements, found ' + features.length + ' - Failed');
+                    else
+                        console.log('getFeatures expecting ' + feat_count + ' child elements, found ' + features.length + ' - Passed ');
+                }
+            });
+            req.send(null);
+        });
+
+    }
+
+
     // testDropDowns() 
     // Ensures that all functions creating drop downs are effectively doing so 
     // and therefore a select object, named appropriately, is associated with option 
@@ -252,22 +363,22 @@ class RulesView {
 
         var toTest = '';
 
-        // Test getBoundary() 
+        // Test getBoundaries() 
         if (id == 'boundary_name') {
-            toTest = 'getBoundary()'; 
-            this.getBoundaries();
+            toTest = 'getBoundaries()'; 
+            this.testGetBoundaries();
         }
 
         // Test getGroups()
         else if (id == 'group_name') {
             toTest = 'getGroups()';
-            this.getGroups(); 
+            this.testGetGroups(); 
         }
 
         // Test getFeatures()
         else if (id == 'feature_to_disable') {
             toTest = 'getFeatures()';
-            this.getFeatures(); 
+            this.testGetFeatures(); 
         }
 
         // Otherwise don't know what to test 
@@ -275,23 +386,6 @@ class RulesView {
             console.log('unhandled'); 
             return false; 
         }
-
-        document.addEventListener("DOMContentLoaded", function (event) {
-
-            // Get the number of <options> available for this drop-down
-            var result = document.getElementsByTagName('option');
-
-            console.log('options found:' + result.length);
-
-
-            // If at least 1, then we've succeeded, as we pre-populate database
-            if (result.length >= 1)
-                console.log(toTest + '- Passed');
-            else
-                console.log(toTest + ' - Failed');
-        });        
-
-
     }
 }
 
